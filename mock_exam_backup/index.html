@@ -1,0 +1,2307 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>스마트 학습평가</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- React & Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #1a3a6b;
+    --primary-light: #2c5292;
+    --primary-dark: #0f2240;
+    --accent: #f5a623;
+    --accent-hover: #e0961c;
+    --bg-color: #f4f7fb;
+    --text-main: #333333;
+    --text-muted: #666666;
+    --white: #ffffff;
+    --border: #e2e8f0;
+    --danger: #e74c3c;
+    --success: #2ecc71;
+    --warning: #f1c40f;
+    --font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh; /* For mobile browsers */
+    overflow: hidden; /* Prevent body scroll */
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-main);
+  }
+
+  /* Main Container */
+  #root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--white);
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    overflow: hidden; /* Inner content handles scroll if needed */
+  }
+
+  /* Header */
+  .app-header {
+    background: var(--primary);
+    color: var(--white);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 10;
+  }
+
+  .app-header h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  /* Scrollable Content Area */
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* But for Exam, we want it fixed and scalable */
+  .exam-mode .content-area {
+    overflow: hidden;
+    padding: 1rem;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-size: 1rem;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: var(--white);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-light);
+  }
+
+  .btn-primary:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+  }
+
+  .btn-accent {
+    background: var(--accent);
+    color: var(--white);
+  }
+
+  .btn-accent:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+  }
+
+  .btn-outline:hover {
+    background: rgba(26, 58, 107, 0.05);
+  }
+
+  /* Form Elements */
+  input[type="text"], input[type="password"], textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26, 58, 107, 0.1);
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  .badge-하 { background: var(--success); }
+  .badge-중 { background: var(--warning); color: #333; }
+  .badge-상 { background: var(--danger); }
+
+  /* Utility Classes */
+  .text-center { text-align: center; }
+  .mt-4 { margin-top: 1rem; }
+  .mb-4 { margin-bottom: 1rem; }
+  .w-full { width: 100%; }
+
+  /* Grid Layouts */
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+
+  @media (max-width: 768px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .app-header h1 { font-size: 1.1rem; }
+    .btn { padding: 0.6rem 1.2rem; font-size: 0.95rem; }
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-color); }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  /* Loading Spinner */
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(26, 58, 107, 0.2);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+  }
+
+  /* OMR Styles */
+  .omr-sidebar {
+    width: 280px;
+    background: #f8fafc;
+    border-right: 2px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    overflow-y: auto;
+    z-index: 5;
+  }
+
+  .omr-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .omr-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .omr-btn {
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid var(--primary);
+    background: transparent;
+    color: var(--primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease-in;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .omr-btn:hover:not(:disabled) {
+    background: rgba(26, 58, 107, 0.1);
+  }
+
+  .omr-btn.selected {
+    background: var(--primary);
+    color: var(--white);
+  }
+  
+  .omr-btn:disabled {
+    border-color: #cbd5e1;
+    color: #cbd5e1;
+    cursor: not-allowed;
+  }
+
+  .exam-question-box {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    border-left: 5px solid var(--primary);
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  /* Fixed structure for Exam to fit screen */
+  .exam-layout {
+    display: flex;
+    flex-direction: row;
+    height: calc(100vh - 64px - 8px); /* minus header and progress bar */
+  }
+
+  .exam-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; 
+    padding: 1rem;
+  }
+
+  /* Progress Bar */
+  .progress-container {
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+
+  /* Grid overview */
+  .omr-grid-overview {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    overflow-y: auto;
+  }
+
+  .omr-mini-dot {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: #e2e8f0;
+    font-size: 0.9rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .omr-mini-dot:hover {
+    background: #cbd5e1;
+  }
+
+  .omr-mini-dot.filled {
+    background: var(--primary);
+    color: white;
+  }
+  .omr-mini-dot.current {
+    border: 2px solid var(--accent);
+    transform: scale(1.1);
+  }
+  
+  /* Chat Modal Styles */
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 60vh;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 1rem;
+    overflow: hidden;
+  }
+  
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .chat-bubble {
+    max-width: 80%;
+    padding: 1rem;
+    border-radius: 12px;
+    line-height: 1.5;
+  }
+  
+  .chat-bubble.ai {
+    background: white;
+    align-self: flex-start;
+    border: 1px solid var(--border);
+    border-top-left-radius: 2px;
+  }
+  
+  .chat-bubble.user {
+    background: var(--primary);
+    color: white;
+    align-self: flex-end;
+    border-top-right-radius: 2px;
+  }
+  
+  .chat-input-area {
+    display: flex;
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid var(--border);
+    gap: 0.5rem;
+  }
+
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-content {
+    background: var(--white);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+const CURRICULUM = {
+  수학: {
+    chapters: [
+      { id: "math_1", name: "소인수분해", topics: ["소수와 합성수", "거듭제곱", "소인수분해", "최대공약수", "최소공배수"] },
+      { id: "math_2", name: "정수와 유리수", topics: ["양수와 음수", "정수와 유리수", "수직선", "절댓값", "정수와 유리수의 사칙연산"] },
+      { id: "math_3", name: "문자와 식", topics: ["문자의 사용과 식의 값", "일차식의 계산", "일차방정식"] },
+      { id: "math_4", name: "좌표평면과 그래프", topics: ["순서쌍과 좌표", "사분면", "그래프와 그 해석", "정비례", "반비례"] }
+    ]
+  },
+  국어: {
+    chapters: [
+      { id: "kor_1", name: "문학의 갈래", topics: ["시의 특성", "소설의 특성", "극문학", "수필"] },
+      { id: "kor_2", name: "문법의 기초", topics: ["품사", "문장 성분", "어휘와 어법"] },
+      { id: "kor_3", name: "읽기와 쓰기", topics: ["설명하는 글", "주장하는 글", "정보 전달 글"] },
+      { id: "kor_4", name: "듣기·말하기", topics: ["토론", "발표", "면담"] }
+    ]
+  },
+  영어: {
+    chapters: [
+      { id: "eng_1", name: "현재시제와 be동사", topics: ["be동사 현재형", "일반동사 현재형", "인칭대명사"] },
+      { id: "eng_2", name: "과거시제", topics: ["be동사 과거형", "일반동사 과거형 (규칙/불규칙)"] },
+      { id: "eng_3", name: "미래시제", topics: ["will", "be going to"] },
+      { id: "eng_4", name: "조동사", topics: ["can, may, must, should"] },
+      { id: "eng_5", name: "문장 구조", topics: ["문장의 종류", "There is/are", "명령문"] },
+      { id: "eng_6", name: "어휘와 독해", topics: ["단어 추론", "지문 이해", "빈칸 채우기"] }
+    ]
+  },
+  사회: {
+    chapters: [
+      { id: "soc_1", name: "내가 사는 세계", topics: ["지도 읽기", "위도와 경도", "대륙과 대양", "세계 여러 지역"] },
+      { id: "soc_2", name: "우리와 다른 기후, 다른 생활", topics: ["기후의 의미와 요인", "열대기후", "건조기후", "온대기후", "냉·한대기후"] },
+      { id: "soc_3", name: "자연으로 떠나는 여행", topics: ["지형의 형성", "산지지형", "해안지형", "특수지형"] },
+      { id: "soc_4", name: "다양한 세계, 다양한 문화", topics: ["문화의 의미", "세계 문화권", "문화 변용", "문화 상대주의"] }
+    ]
+  },
+  과학: {
+    chapters: [
+      { id: "sci_1", name: "지권의 변화", topics: ["지구계", "지각의 구성", "암석의 순환", "지각 변동"] },
+      { id: "sci_2", name: "여러 가지 힘", topics: ["힘의 표현", "중력과 탄성력", "마찰력", "부력"] },
+      { id: "sci_3", name: "생물의 다양성", topics: ["생물 다양성", "생물 분류", "식물의 분류", "동물의 분류"] },
+      { id: "sci_4", name: "기체의 성질", topics: ["입자의 운동", "보일의 법칙", "샤를의 법칙"] },
+      { id: "sci_5", name: "물질의 상태 변화", topics: ["상태 변화", "상태 변화와 열에너지"] }
+    ]
+  }
+};
+
+// Utilities
+function renderMath(text) {
+  if (!text) return "";
+  let rendered = text.replace(/\$\$(.*?)\$\$/gs, (_, latex) => {
+    try {
+      return katex.renderToString(latex, { displayMode: true, throwOnError: false });
+    } catch(e) { return latex; }
+  }).replace(/\$(.*?)\$/g, (_, latex) => {
+    try {
+      return katex.renderToString(latex, { displayMode: false, throwOnError: false });
+    } catch(e) { return latex; }
+  });
+  return { __html: rendered };
+}
+
+// Helper to shuffle array
+function shuffleArray(array) {
+  const newArr = [...array];
+  for (let i = newArr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+  }
+  return newArr;
+}
+// 정적 문제 은행 (원장님표 고품질 내장 문항)
+const STATIC_QUESTIONS = [
+  // --- 새로 추가된 고품질 시각 자료 문항 ---
+  {
+    id: "math_v1",
+    subject: "수학",
+    chapter: "기본도형과 다면체",
+    difficulty: "상",
+    type: "multiple_choice",
+    question_text: "다음 그림의 사각뿔대에서 선분 BF와 꼬인 위치에 있는 모서리가 아닌 것은?",
+    question_svg: `<svg width="240" height="180" viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
+      <!-- Back edges (dashed) -->
+      <line x1="90" y1="120" x2="190" y2="120" stroke="#333" stroke-dasharray="5,5" stroke-width="2"/>
+      <line x1="90" y1="120" x2="50" y2="160" stroke="#333" stroke-dasharray="5,5" stroke-width="2"/>
+      <line x1="90" y1="120" x2="105" y2="50" stroke="#333" stroke-dasharray="5,5" stroke-width="2"/>
+      
+      <!-- Bottom face solid -->
+      <line x1="50" y1="160" x2="150" y2="160" stroke="#333" stroke-width="2"/>
+      <line x1="150" y1="160" x2="190" y2="120" stroke="#333" stroke-width="2"/>
+      
+      <!-- Top face solid -->
+      <line x1="105" y1="50" x2="155" y2="50" stroke="#333" stroke-width="2"/>
+      <line x1="155" y1="50" x2="135" y2="80" stroke="#333" stroke-width="2"/>
+      <line x1="135" y1="80" x2="85" y2="80" stroke="#333" stroke-width="2"/>
+      <line x1="85" y1="80" x2="105" y2="50" stroke="#333" stroke-width="2"/>
+      
+      <!-- Lateral solid -->
+      <line x1="85" y1="80" x2="50" y2="160" stroke="#333" stroke-width="2"/>
+      <line x1="135" y1="80" x2="150" y2="160" stroke="#333" stroke-width="2"/>
+      <line x1="155" y1="50" x2="190" y2="120" stroke="#333" stroke-width="2"/>
+      
+      <!-- Labels -->
+      <text x="95" y="45" font-size="16" font-family="serif" font-weight="bold">D</text>
+      <text x="160" y="45" font-size="16" font-family="serif" font-weight="bold">C</text>
+      <text x="65" y="85" font-size="16" font-family="serif" font-weight="bold">A</text>
+      <text x="142" y="85" font-size="16" font-family="serif" font-weight="bold">B</text>
+      
+      <text x="75" y="115" font-size="16" font-family="serif" font-weight="bold">H</text>
+      <text x="195" y="125" font-size="16" font-family="serif" font-weight="bold">G</text>
+      <text x="35" y="170" font-size="16" font-family="serif" font-weight="bold">E</text>
+      <text x="155" y="175" font-size="16" font-family="serif" font-weight="bold">F</text>
+    </svg>`,
+    options: [
+      "① 선분 AD",
+      "② 선분 CD",
+      "③ 선분 AB",
+      "④ 선분 HE",
+      "⑤ 선분 HG"
+    ],
+    correct_index: 2,
+    correct_answer: "③",
+    explanation: "꼬인 위치는 공간상에서 서로 평행하지도 않고 만나지도 않는 두 직선을 말합니다. 선분 AB는 선분 BF와 점 B에서 만나므로 꼬인 위치가 아닙니다.",
+    hint: "만나거나 평행한 직선은 꼬인 위치가 될 수 없습니다. 그림에서 점 B에서 만나는 선분을 찾아보세요."
+  },
+  {
+    id: "math_v2",
+    subject: "수학",
+    chapter: "부채꼴과 원",
+    difficulty: "중",
+    type: "multiple_choice",
+    question_text: "다음 그림의 원 O에서 선분 AB는 원 O의 지름이고, 호 AC : 호 CB = 4 : 1 일 때, ∠BOC의 크기를 구하면?",
+    question_svg: `<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
+      <circle cx="100" cy="100" r="80" fill="none" stroke="#222" stroke-width="2"/>
+      <line x1="20" y1="100" x2="180" y2="100" stroke="#222" stroke-width="2"/>
+      <line x1="100" y1="100" x2="164.7" y2="52.9" stroke="#222" stroke-width="2"/>
+      <circle cx="100" cy="100" r="4" fill="#222"/>
+      
+      <text x="8" y="106" font-size="16" font-family="serif" font-weight="bold">A</text>
+      <text x="185" y="106" font-size="16" font-family="serif" font-weight="bold">B</text>
+      <text x="170" y="45" font-size="16" font-family="serif" font-weight="bold">C</text>
+      <text x="95" y="120" font-size="16" font-family="serif" font-weight="bold">O</text>
+      
+      <!-- angle arc -->
+      <path d="M 125 100 A 25 25 0 0 0 120 85" fill="none" stroke="#222" stroke-width="1.5"/>
+    </svg>`,
+    options: [
+      "① 28°",
+      "② 30°",
+      "③ 32°",
+      "④ 34°",
+      "⑤ 36°"
+    ],
+    correct_index: 4,
+    correct_answer: "⑤",
+    explanation: "호의 길이는 중심각의 크기에 정비례합니다. 선분 AB가 지름이므로 반원의 중심각은 180°입니다. 호 AC:호 CB = 4:1 이므로, ∠BOC = 180° × (1 / (4 + 1)) = 180° × (1/5) = 36° 입니다.",
+    hint: "지름에 대한 중심각은 180°입니다. 중심각은 호의 길이에 비례하여 나누어집니다."
+  },
+  {
+    id: "math_v3",
+    subject: "수학",
+    chapter: "기본도형(입체도형)",
+    difficulty: "중",
+    type: "subjective",
+    question_text: "다음 그림과 같은 두 입체도형 A, B의 교점의 개수의 합을 a, 교선의 개수의 합을 b라 할 때, a+b의 값을 구하여라.",
+    question_svg: `<svg width="340" height="160" viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto; background: #f8fafc; border: 1px solid #cbd5e1;">
+      <!-- Divider -->
+      <line x1="170" y1="0" x2="170" y2="160" stroke="#cbd5e1" stroke-width="1"/>
+      
+      <!-- Headers -->
+      <rect x="0" y="0" width="170" height="30" fill="#e2e8f0"/>
+      <rect x="170" y="0" width="170" height="30" fill="#e2e8f0"/>
+      <text x="85" y="20" font-size="16" font-family="sans-serif" font-weight="bold" text-anchor="middle">A</text>
+      <text x="255" y="20" font-size="16" font-family="sans-serif" font-weight="bold" text-anchor="middle">B</text>
+      <line x1="0" y1="30" x2="340" y2="30" stroke="#cbd5e1" stroke-width="1"/>
+      
+      <!-- Cylinder A -->
+      <ellipse cx="85" cy="55" rx="35" ry="12" fill="white" stroke="#333" stroke-width="2"/>
+      <line x1="50" y1="55" x2="50" y2="125" stroke="#333" stroke-width="2"/>
+      <line x1="120" y1="55" x2="120" y2="125" stroke="#333" stroke-width="2"/>
+      <path d="M 50 125 A 35 12 0 0 0 120 125" fill="none" stroke="#333" stroke-width="2"/>
+      <path d="M 50 125 A 35 12 0 0 1 120 125" fill="none" stroke="#333" stroke-dasharray="4,4" stroke-width="2"/>
+      
+      <!-- Square Pyramid B -->
+      <g transform="translate(170, 0)">
+        <!-- Base hidden -->
+        <line x1="35" y1="125" x2="85" y2="105" stroke="#333" stroke-dasharray="4,4" stroke-width="2"/>
+        <line x1="135" y1="125" x2="85" y2="105" stroke="#333" stroke-dasharray="4,4" stroke-width="2"/>
+        <!-- Apex to Back hidden -->
+        <line x1="85" y1="45" x2="85" y2="105" stroke="#333" stroke-dasharray="4,4" stroke-width="2"/>
+        
+        <!-- Base visible -->
+        <polygon points="85,45 35,125 85,145" fill="#fed7aa" stroke="#333" stroke-width="2" stroke-linejoin="round"/>
+        <polygon points="85,45 85,145 135,125" fill="#fdba74" stroke="#333" stroke-width="2" stroke-linejoin="round"/>
+      </g>
+    </svg>`,
+    correct_answer: "15",
+    explanation: "도형 A(원기둥)는 꼭짓점(교점)이 없고 모서리(교선)가 2개(위, 아래 원)입니다. 따라서 a1=0, b1=2. 도형 B(사각뿔)는 꼭짓점 5개, 모서리가 8개입니다. 따라서 a2=5, b2=8. 전체 합 a=5, b=10 이므로 a+b=15 입니다.",
+    hint: "교점은 꼭짓점을, 교선은 모서리를 의미합니다. 원기둥에는 뾰족한 교점이 있는지 생각해보세요."
+  },
+  {
+    id: "soc_v1",
+    subject: "사회",
+    chapter: "지리적 위치와 대륙",
+    difficulty: "상",
+    type: "multiple_choice",
+    question_text: "지도를 보고 대륙과 알파벳 연결이 잘못된 것을 고르면?",
+    question_svg: `<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto; border:1px solid #ccc; background:#f0f8ff;">
+      <!-- Simplified Abstract Map -->
+      <!-- North America (C) -->
+      <path d="M 40 40 Q 80 10 130 50 T 110 100 Q 80 80 40 40" fill="#94a3b8" stroke="#fff" stroke-width="1.5"/>
+      <!-- South America -->
+      <path d="M 100 110 Q 140 100 130 170 T 100 190 Q 80 150 100 110" fill="#94a3b8" stroke="#fff" stroke-width="1.5"/>
+      <!-- Europe (A) -->
+      <path d="M 180 30 Q 210 20 220 50 T 180 70 Q 160 50 180 30" fill="#cbd5e1" stroke="#fff" stroke-width="1.5"/>
+      <!-- Africa (D) -->
+      <path d="M 180 80 Q 230 70 220 140 T 190 170 Q 160 120 180 80" fill="#475569" stroke="#fff" stroke-width="1.5"/>
+      <!-- Asia (B) -->
+      <path d="M 230 20 Q 360 10 330 90 T 260 100 Q 210 60 230 20" fill="#cbd5e1" stroke="#fff" stroke-width="1.5"/>
+      <!-- Oceania (E) -->
+      <path d="M 300 140 Q 350 130 360 170 T 320 190 Q 280 160 300 140" fill="#1e293b" stroke="#fff" stroke-width="1.5"/>
+      
+      <!-- Markers -->
+      <circle cx="190" cy="45" r="14" fill="white" stroke="#333" stroke-width="2"/>
+      <text x="190" y="50" font-size="14" font-family="sans-serif" text-anchor="middle" font-weight="bold">A</text>
+      
+      <circle cx="280" cy="50" r="14" fill="white" stroke="#333" stroke-width="2"/>
+      <text x="280" y="55" font-size="14" font-family="sans-serif" text-anchor="middle" font-weight="bold">B</text>
+      
+      <circle cx="85" cy="55" r="14" fill="white" stroke="#333" stroke-width="2"/>
+      <text x="85" y="60" font-size="14" font-family="sans-serif" text-anchor="middle" font-weight="bold">C</text>
+      
+      <circle cx="195" cy="115" r="14" fill="white" stroke="#333" stroke-width="2"/>
+      <text x="195" y="120" font-size="14" font-family="sans-serif" text-anchor="middle" font-weight="bold">D</text>
+      
+      <circle cx="320" cy="160" r="14" fill="white" stroke="#333" stroke-width="2"/>
+      <text x="320" y="165" font-size="14" font-family="sans-serif" text-anchor="middle" font-weight="bold">E</text>
+    </svg>`,
+    options: [
+      "① A - 유럽",
+      "② B - 아시아",
+      "③ C - 북아메리카",
+      "④ D - 아프리카",
+      "⑤ E - 남아메리카"
+    ],
+    correct_index: 4,
+    correct_answer: "⑤",
+    explanation: "A는 유럽, B는 아시아, C는 북아메리카, D는 아프리카, E는 오세아니아입니다. 남아메리카는 북아메리카(C) 아래쪽에 위치한 대륙입니다.",
+    hint: "호주가 있는 E 대륙의 이름은 무엇일까요?"
+  },
+
+  // --- 국어 ---
+  {
+    id: "kor_1",
+    subject: "국어",
+    chapter: "시의 형상성",
+    difficulty: "하",
+    type: "multiple_choice",
+    question_text: "다음 중 '시각적 심상'이 가장 두드러지게 나타난 구절은?",
+    options: [
+      "① 귀뚜라미 우는 밤",
+      "② 향긋한 풀내음",
+      "③ 붉은 해가 솟아오른다",
+      "④ 따스한 봄바람",
+      "⑤ 매운 고추 맛"
+    ],
+    correct_index: 2,
+    correct_answer: "③",
+    explanation: "시각적 심상은 눈으로 보는 듯한 느낌을 줍니다. '붉은 해'는 색채를 통해 시각적 심상을 명확히 드러냅니다.",
+    hint: "색깔이나 모양을 나타내는 구절을 찾아보세요."
+  },
+  {
+    id: "kor_2",
+    subject: "국어",
+    chapter: "품사의 이해",
+    difficulty: "중",
+    type: "multiple_choice",
+    question_text: "다음 문장에서 밑줄 친 단어의 품사로 알맞은 것은?<br/><br/>나는 <u>새</u> 신발을 신고 학교에 갔다.",
+    options: [
+      "① 명사",
+      "② 대명사",
+      "③ 관형사",
+      "④ 부사",
+      "⑤ 형용사"
+    ],
+    correct_index: 2,
+    correct_answer: "③",
+    explanation: "'새'는 뒤에 오는 명사 '신발'을 수식하며 형태가 변하지 않으므로 관형사입니다.",
+    hint: "체언(명사, 대명사, 수사)을 꾸며주는 역할을 하는 품사입니다."
+  },
+  {
+    id: "kor_3",
+    subject: "국어",
+    chapter: "소설의 구성",
+    difficulty: "중",
+    type: "multiple_choice",
+    question_text: "소설의 구성 단계 중 갈등이 가장 고조되고 사건의 해결 실마리가 나타나는 단계는?",
+    options: [
+      "① 발단",
+      "② 전개",
+      "③ 위기",
+      "④ 절정",
+      "⑤ 결말"
+    ],
+    correct_index: 3,
+    correct_answer: "④",
+    explanation: "소설의 구성은 발단-전개-위기-절정-결말로 이루어지며, 절정 단계에서 갈등이 최고조에 달합니다.",
+    hint: "갈등이 '최고'에 달하는 산의 꼭대기를 의미하는 단어입니다."
+  },
+  {
+    id: "kor_4",
+    subject: "국어",
+    chapter: "비유적 표현",
+    difficulty: "상",
+    type: "subjective",
+    question_text: "'내 마음은 호수요'와 같이 원관념과 보조관념을 'A는 B이다'의 형태로 연결하는 비유법의 이름을 쓰시오.",
+    correct_answer: "은유법",
+    explanation: "'A는 B이다' 형태로 원관념과 보조관념을 동일시하는 비유법을 은유법이라고 합니다.",
+    hint: "'~같이', '~처럼'을 쓰는 직유법과 다르게 'A=B'의 형태를 띱니다."
+  },
+  {
+    id: "kor_5",
+    subject: "국어",
+    chapter: "설명문 읽기",
+    difficulty: "상",
+    type: "multiple_choice",
+    question_text: "설명문에 대한 설명으로 옳지 <b>않은</b> 것은?",
+    options: [
+      "① 객관적인 사실을 전달한다.",
+      "② 독자의 이해를 돕는 것을 목적으로 한다.",
+      "③ 글쓴이의 주관적인 감정이나 주장이 강하게 드러난다.",
+      "④ 명료하고 간결한 문장을 주로 사용한다.",
+      "⑤ 예시, 비교, 대조 등의 설명 방법을 활용한다."
+    ],
+    correct_index: 2,
+    correct_answer: "③",
+    explanation: "설명문은 정보를 전달하기 위한 글이므로 주관적인 감정이나 의견은 배제하고 객관적인 태도를 유지해야 합니다.",
+    hint: "설명문은 '사실'을 바탕으로 정보를 제공하는 글입니다."
+  },
+
+  // --- 영어 ---
+  {
+    id: "eng_1",
+    subject: "영어",
+    chapter: "be동사와 인칭대명사",
+    difficulty: "하",
+    type: "multiple_choice",
+    question_text: "빈칸에 들어갈 알맞은 be동사는?<br/><br/>My parents ______ doctors.",
+    options: [
+      "① am",
+      "② are",
+      "③ is",
+      "④ was",
+      "⑤ be"
+    ],
+    correct_index: 1,
+    correct_answer: "②",
+    explanation: "'My parents'는 3인칭 복수이므로 be동사 'are'를 사용해야 합니다.",
+    hint: "주어가 복수(여럿)일 때 쓰는 be동사를 생각해보세요."
+  },
+  {
+    id: "eng_2",
+    subject: "영어",
+    chapter: "일반동사의 현재형",
+    difficulty: "중",
+    type: "multiple_choice",
+    question_text: "다음 중 어법상 바른 문장은?",
+    options: [
+      "① He play soccer well.",
+      "② She don't like apples.",
+      "③ They goes to school by bus.",
+      "④ Tom watches TV every evening.",
+      "⑤ Does you have a pen?"
+    ],
+    correct_index: 3,
+    correct_answer: "④",
+    explanation: "주어 Tom이 3인칭 단수이고 현재 시제이므로 동사에 -es가 붙은 watches가 올바릅니다.",
+    hint: "주어가 3인칭 단수(He, She, It 등)일 때 일반동사의 형태에 주의하세요."
+  },
+  {
+    id: "eng_3",
+    subject: "영어",
+    chapter: "조동사",
+    difficulty: "중",
+    type: "multiple_choice",
+    question_text: "'You must not run in the hallway.'와 같은 의미를 가진 문장은?",
+    options: [
+      "① You don't have to run in the hallway.",
+      "② You should run in the hallway.",
+      "③ You can run in the hallway.",
+      "④ You shouldn't run in the hallway.",
+      "⑤ You are able to run in the hallway."
+    ],
+    correct_index: 3,
+    correct_answer: "④",
+    explanation: "'must not'은 강한 금지를 나타내며, '~해서는 안 된다'는 뜻의 'should not(shouldn't)'과 비슷한 의미로 쓰일 수 있습니다.",
+    hint: "must not은 '금지'를 나타냅니다."
+  },
+  {
+    id: "eng_4",
+    subject: "영어",
+    chapter: "의문사 의문문",
+    difficulty: "상",
+    type: "subjective",
+    question_text: "다음 우리말과 같은 뜻이 되도록 빈칸에 알맞은 의문사를 쓰시오.<br/><br/>너는 학교에 어떻게 가니?<br/>= ______ do you go to school?",
+    correct_answer: "How",
+    explanation: "방법이나 수단을 물을 때는 의문사 How를 사용합니다.",
+    hint: "'어떻게'에 해당하는 영어 단어입니다."
+  },
+  {
+    id: "eng_5",
+    subject: "영어",
+    chapter: "현재진행형",
+    difficulty: "상",
+    type: "multiple_choice",
+    question_text: "다음 문장을 현재진행형으로 바르게 고친 것은?<br/><br/>The baby sleeps on the bed.",
+    options: [
+      "① The baby is sleep on the bed.",
+      "② The baby is sleeping on the bed.",
+      "③ The baby sleeping on the bed.",
+      "④ The baby are sleeping on the bed.",
+      "⑤ The baby sleeps is on the bed."
+    ],
+    correct_index: 1,
+    correct_answer: "②",
+    explanation: "현재진행형은 「be동사 + 동사원형-ing」 형태입니다. 주어가 The baby (단수)이므로 is sleeping이 올바릅니다.",
+    hint: "현재진행형의 기본 형태인 'be동사 + -ing'를 적용해보세요."
+  },
+
+  // --- 수학 ---
+  {
+    id: "math_1",
+    subject: "수학",
+    chapter: "소인수분해",
+    difficulty: "하",
+    type: "multiple_choice",
+    question_text: "다음 중 소수에 대한 설명으로 옳은 것을 모두 고르면?",
+    options: [
+      "① 1은 소수이다.",
+      "② 모든 소수는 홀수이다.",
+      "③ 2는 가장 작은 소수이다.",
+      "④ 합성수는 약수가 2개뿐이다.",
+      "⑤ 소수이면서 합성수인 자연수가 존재한다."
+    ],
+    correct_index: 2,
+    correct_answer: "③",
+    explanation: "소수는 1보다 큰 자연수 중 1과 자기 자신만을 약수로 가지는 수입니다. 2는 유일한 짝수 소수이며 가장 작습니다.",
+    hint: "2의 약수를 생각해보세요."
+  },
+  {
+    id: "math_2",
+    subject: "수학",
+    chapter: "정수와 유리수",
+    difficulty: "중",
+    type: "subjective",
+    question_text: "$-3$보다 크고 $2$보다 작거나 같은 정수의 개수를 구하시오.",
+    correct_answer: "5",
+    explanation: "해당하는 정수는 $-2, -1, 0, 1, 2$ 이므로 총 5개입니다.",
+    hint: "수직선에서 -3과 2 사이에 있는 수들을 나열해보세요. (-3은 포함되지 않습니다)"
+  },
+  {
+    id: "math_3",
+    subject: "수학",
+    chapter: "문자와 식",
+    difficulty: "중",
+    type: "multiple_choice",
+    question_text: "식 $2x - 5y + 3$에서 상수항은?",
+    options: [
+      "① 2",
+      "② -5",
+      "③ 3",
+      "④ x",
+      "⑤ y"
+    ],
+    correct_index: 2,
+    correct_answer: "③",
+    explanation: "상수항은 문자 없이 수로만 이루어진 항을 의미합니다. 따라서 3입니다.",
+    hint: "상수항이란 문자가 포함되지 않은 항입니다."
+  },
+  {
+    id: "math_4",
+    subject: "수학",
+    chapter: "일차방정식",
+    difficulty: "상",
+    type: "multiple_choice",
+    question_text: "일차방정식 $3(x - 2) = x + 4$의 해를 구하시오.",
+    options: [
+      "① $x = 2$",
+      "② $x = 3$",
+      "③ $x = 4$",
+      "④ $x = 5$",
+      "⑤ $x = 6$"
+    ],
+    correct_index: 3,
+    correct_answer: "④",
+    explanation: "괄호를 풀면 $3x - 6 = x + 4$가 됩니다. 이항하여 정리하면 $2x = 10$, 양변을 2로 나누면 $x = 5$입니다.",
+    hint: "먼저 분배법칙을 사용하여 괄호를 풀고, x는 왼쪽으로, 숫자는 오른쪽으로 이항하세요.",
+    math_solution_steps: [
+      { step: 1, title: "괄호 풀기", content: "분배법칙을 적용합니다.", latex: "3x - 6 = x + 4" },
+      { step: 2, title: "이항하기", content: "$x$를 좌변으로, 상수를 우변으로 이항합니다.", latex: "3x - x = 4 + 6" },
+      { step: 3, title: "동류항 정리", content: "양변을 계산합니다.", latex: "2x = 10" },
+      { step: 4, title: "결과 도출", content: "양변을 2로 나눕니다.", latex: "x = 5" }
+    ]
+  },
+  {
+    id: "math_5",
+    subject: "수학",
+    chapter: "좌표평면과 그래프",
+    difficulty: "상",
+    type: "subjective",
+    question_text: "점 $(-3, 4)$가 위치한 사분면은 제 몇 사분면인지 숫자로만 쓰시오.",
+    correct_answer: "2",
+    explanation: "$x$좌표가 음수, $y$좌표가 양수이므로 제2사분면입니다.",
+    hint: "x축의 음의 방향(왼쪽)과 y축의 양의 방향(위쪽)이 만나는 영역입니다."
+  },
+
+  // --- 사회 ---
+  {
+    id: "soc_1",
+    subject: "사회",
+    chapter: "내가 사는 세계",
+    difficulty: "하",
+    type: "multiple_choice",
+    question_text: "위도와 경도를 이용하여 위치를 나타내는 방식은?",
+    options: [
+      "① 상대적 위치",
+      "② 절대적 위치",
+      "③ 지형적 위치",
+      "④ 관계적 위치",
+      "⑤ 문화적 위치"
+    ],
+    correct_index: 1,
+    correct_answer: "②",
+    explanation: "위도와 경도라는 수치화된 좌표를 이용해 변하지 않는 고정된 위치를 나타내는 것을 수리적 위치(절대적 위치)라고 합니다.",
+    hint: "변하지 않는 고정된 좌표값이라는 점에 주목하세요."
+  },
+  {
+    id: "soc_2",
+    subject: "사회",
+    chapter: "다양한 기후 지역",
+    difficulty: "중",
+    type: "multiple_choice",
+    question_text: "1년 내내 기온이 높고 강수량이 많아 밀림이 형성되는 기후는?",
+    options: [
+      "① 열대 우림 기후",
+      "② 사막 기후",
+      "③ 지중해성 기후",
+      "④ 서안 해양성 기후",
+      "⑤ 툰드라 기후"
+    ],
+    correct_index: 0,
+    correct_answer: "①",
+    explanation: "적도 주변에 분포하며 고온 다습하여 다양한 동식물이 서식하는 밀림(열대 우림)이 형성됩니다.",
+    hint: "'열대'와 비가 많이 내린다는 뜻의 '우림'을 조합해보세요."
+  },
+  {
+    id: "soc_3",
+    subject: "사회",
+    chapter: "인구 변화와 인구 문제",
+    difficulty: "중",
+    type: "multiple_choice",
+    question_text: "개발도상국에서 주로 나타나는 인구 문제로 가장 적절한 것은?",
+    options: [
+      "① 저출산",
+      "② 고령화",
+      "③ 인구의 급격한 증가",
+      "④ 노동력 부족",
+      "⑤ 인구의 역도시화"
+    ],
+    correct_index: 2,
+    correct_answer: "③",
+    explanation: "개발도상국은 사망률이 감소하는 반면 출생률은 여전히 높아 인구가 급증하는 경향을 보입니다.",
+    hint: "선진국은 저출산 고령화, 개발도상국은 그 반대 양상입니다."
+  },
+  {
+    id: "soc_4",
+    subject: "사회",
+    chapter: "정치 생활과 민주주의",
+    difficulty: "상",
+    type: "subjective",
+    question_text: "국가의 주권이 국민에게 있고, 국민을 위해 정치가 이루어지는 제도를 무엇이라고 합니까?",
+    correct_answer: "민주주의",
+    explanation: "민주주의는 '국민(Demos)의 지배(Kratos)'라는 어원을 가지며, 국민이 주권을 갖는 정치 형태를 말합니다.",
+    hint: "대한민국은 OOOO 공화국입니다."
+  },
+  {
+    id: "soc_5",
+    subject: "사회",
+    chapter: "일상생활과 법",
+    difficulty: "상",
+    type: "multiple_choice",
+    question_text: "법의 특징으로 옳지 <b>않은</b> 것은?",
+    options: [
+      "① 국가 기관에 의해 만들어진다.",
+      "② 강제성이 있다.",
+      "③ 위반 시 제재를 받는다.",
+      "④ 시대와 사회에 관계없이 항상 변하지 않는다.",
+      "⑤ 사람들의 외부적 행위를 주로 규율한다."
+    ],
+    correct_index: 3,
+    correct_answer: "④",
+    explanation: "법은 사회의 변화에 따라 새롭게 제정되거나 개정되기도 하므로 고정불변한 것은 아닙니다.",
+    hint: "스마트폰이 생기면서 사이버 범죄 관련 법이 새로 만들어진 것을 생각해보세요."
+  },
+
+  // --- 과학 ---
+  {
+    id: "sci_1",
+    subject: "과학",
+    chapter: "지권의 변화",
+    difficulty: "하",
+    type: "multiple_choice",
+    question_text: "지구를 둘러싸고 있는 가장 바깥쪽의 단단한 암석층은?",
+    options: [
+      "① 맨틀",
+      "② 외핵",
+      "③ 내핵",
+      "④ 지각",
+      "⑤ 연약권"
+    ],
+    correct_index: 3,
+    correct_answer: "④",
+    explanation: "지구 내부 구조 중 가장 겉에 있는 얇고 단단한 암석층을 지각이라고 합니다.",
+    hint: "사과의 껍질에 해당하는 부분입니다."
+  },
+  {
+    id: "sci_2",
+    subject: "과학",
+    chapter: "여러 가지 힘",
+    difficulty: "중",
+    type: "multiple_choice",
+    question_text: "두 물체의 접촉면에서 물체의 운동을 방해하는 힘은?",
+    options: [
+      "① 중력",
+      "② 탄성력",
+      "③ 마찰력",
+      "④ 자기력",
+      "⑤ 전기력"
+    ],
+    correct_index: 2,
+    correct_answer: "③",
+    explanation: "마찰력은 접촉한 상태에서 미끄러짐을 방해하는 방향으로 작용하는 힘입니다.",
+    hint: "얼음판 위보다 모래사장 위에서 걷기 힘든 이유와 관련된 힘입니다."
+  },
+  {
+    id: "sci_3",
+    subject: "과학",
+    chapter: "생물의 다양성",
+    difficulty: "중",
+    type: "subjective",
+    question_text: "생물을 분류하는 기본 단위를 무엇이라고 합니까?",
+    correct_answer: "종",
+    explanation: "생물 분류 체계(계-문-강-목-과-속-종)에서 가장 기본이 되는 단위는 종(species)입니다.",
+    hint: "자연 상태에서 교배하여 생식 능력이 있는 자손을 낳을 수 있는 생물 무리를 일컫는 한 글자 단어입니다."
+  },
+  {
+    id: "sci_4",
+    subject: "과학",
+    chapter: "기체의 성질",
+    difficulty: "상",
+    type: "multiple_choice",
+    question_text: "온도가 일정할 때 기체의 부피는 압력에 반비례한다는 법칙은?",
+    options: [
+      "① 보일 법칙",
+      "② 샤를 법칙",
+      "③ 질량 보존 법칙",
+      "④ 아보가드로 법칙",
+      "⑤ 관성의 법칙"
+    ],
+    correct_index: 0,
+    correct_answer: "①",
+    explanation: "온도가 일정할 때, 압력이 커지면 기체의 부피가 작아지는 현상을 설명한 것은 보일 법칙입니다.",
+    hint: "영국의 과학자 로버트 'ㅇㅇ'의 이름을 딴 법칙입니다."
+  },
+  {
+    id: "sci_5",
+    subject: "과학",
+    chapter: "빛과 파동",
+    difficulty: "상",
+    type: "multiple_choice",
+    question_text: "빛의 3원색을 모두 합치면 무슨 색이 되는가?",
+    options: [
+      "① 검은색",
+      "② 흰색",
+      "③ 빨간색",
+      "④ 파란색",
+      "⑤ 노란색"
+    ],
+    correct_index: 1,
+    correct_answer: "②",
+    explanation: "빛의 3원색(빨강, 초록, 파랑)을 모두 합성하면 가장 밝은 흰색(백색광)이 됩니다.",
+    hint: "무지개 색이 모두 합쳐진 햇빛의 색을 생각해보세요."
+  }
+];
+
+// 이전에 사용되던 데이터를 덮어씌웁니다. (window 객체에 주입)
+window.STATIC_QUESTIONS = STATIC_QUESTIONS;
+// API Service for Gemini
+const GEMINI_CONFIG = {
+  models: ["gemini-3.1-flash-lite", "gemini-3.5-flash", "gemini-3.1-pro-preview"], // Tutor prioritizes flash-lite
+  apiKey: atob("QVEuQWI4Uk42S3diZ3EtMV8tRGVjZWwwXzFFMVcwZ25kdms1T2Z4NzBhTURBYkpVak1SdUE="), // Hardcoded for internal use
+};
+
+// Custom text API caller for Deep Dive & Tutor Chat
+async function callGeminiTextAPI(systemPrompt, userPrompt, preferredModel = null) {
+  const modelsToTry = preferredModel ? [preferredModel, ...GEMINI_CONFIG.models.filter(m => m !== preferredModel)] : GEMINI_CONFIG.models;
+  
+  for (const model of modelsToTry) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_CONFIG.apiKey}`;
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ parts: [{ text: userPrompt }] }],
+        })
+      });
+      if (!response.ok) {
+        console.warn(`[${model}] 호출 실패, 다음 모델 시도...`);
+        continue;
+      }
+      const data = await response.json();
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) continue;
+      return data.candidates[0].content.parts[0].text;
+    } catch (e) {
+      console.warn(`[${model}] 네트워크 에러, 다음 모델 시도...`);
+    }
+  }
+  throw new Error("모든 텍스트 API 모델 호출이 실패했습니다.");
+}
+// Setup Component
+// Setup Component
+function SetupScreen({ onStart }) {
+  const [selectedSubjects, setSelectedSubjects] = useState(() => {
+    // Select all subjects by default
+    const init = {};
+    Object.keys(CURRICULUM).forEach(subj => {
+      init[subj] = true;
+    });
+    return init;
+  });
+  const [error, setError] = useState('');
+
+  const handleToggleSubject = (subj) => {
+    setSelectedSubjects(prev => ({
+      ...prev,
+      [subj]: !prev[subj]
+    }));
+  };
+
+  const handleSelectAll = (isAll) => {
+    const next = {};
+    Object.keys(CURRICULUM).forEach(subj => {
+      next[subj] = isAll;
+    });
+    setSelectedSubjects(next);
+  };
+
+  const calculateQuestions = () => {
+    // Static DB has 5 questions per subject
+    return Object.keys(selectedSubjects).filter(s => selectedSubjects[s]).length * 5;
+  };
+
+  const startExam = () => {
+    const selected = Object.keys(selectedSubjects).filter(s => selectedSubjects[s]);
+    if (selected.length === 0) {
+      setError("최소 1개 이상의 과목을 선택해야 합니다.");
+      return;
+    }
+    // Pass array of selected subject names
+    onStart(selected);
+  };
+
+  return (
+    <div className="content-area">
+      <div className="glass-panel" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--primary)' }}>
+          <i className="fa-solid fa-gear"></i> 시험 설정 (모의고사)
+        </h2>
+        
+        {error && <p style={{ color: 'var(--danger)', fontSize: '0.9rem', marginBottom: '1rem' }}>{error}</p>}
+
+        <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>과목 선택</h3>
+        
+        <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem' }}>
+          <button className="btn btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem' }} onClick={() => handleSelectAll(true)}>전체 선택</button>
+          <button className="btn btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem' }} onClick={() => handleSelectAll(false)}>전체 해제</button>
+        </div>
+
+        <div className="grid-2" style={{ marginBottom: '2rem' }}>
+          {Object.keys(CURRICULUM).map(subj => {
+            const isSelected = selectedSubjects[subj];
+
+            return (
+              <label key={subj} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', cursor: 'pointer', padding: '1rem', background: isSelected ? 'var(--primary)' : '#f8fafc', color: isSelected ? 'white' : 'var(--text-main)', borderRadius: '8px', border: '1px solid var(--border)', transition: 'all 0.2s' }}>
+                <input 
+                  type="checkbox" 
+                  checked={isSelected} 
+                  onChange={() => handleToggleSubject(subj)}
+                  style={{ width: '1.2rem', height: '1.2rem' }}
+                />
+                <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{subj}</div>
+              </label>
+            );
+          })}
+        </div>
+
+        <div style={{ background: '#fffbeb', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', marginBottom: '2rem', border: '1px solid #fde68a' }}>
+          <h4 style={{ color: '#b45309', margin: 0 }}>출제 문항 수: <strong style={{ fontSize: '1.5rem' }}>{calculateQuestions()}</strong> 문제</h4>
+          <p style={{ fontSize: '0.9rem', color: '#b45309', marginTop: '0.5rem' }}>내장된 고품질 모의고사 문항으로 즉시 시험이 시작됩니다.</p>
+        </div>
+
+        <button className="btn btn-primary w-full" style={{ padding: '1rem', fontSize: '1.2rem' }} onClick={startExam}>
+          <i className="fa-solid fa-play"></i> 시험 시작하기
+        </button>
+      </div>
+    </div>
+  );
+}
+function useTimer(initialSeconds, onComplete) {
+  const [seconds, setSeconds] = useState(initialSeconds);
+  
+  useEffect(() => {
+    if (seconds <= 0) {
+      if (onComplete) onComplete();
+      return;
+    }
+    const timer = setInterval(() => setSeconds(s => s - 1), 1000);
+    return () => clearInterval(timer);
+  }, [seconds, onComplete]);
+
+  const format = `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`;
+  return { seconds, format };
+}
+
+function ExamScreen({ questions, onSubmit, title = "본시험", mode = "exam" }) {
+  // mode: "exam" | "review1" | "review2"
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+  const [warningMsg, setWarningMsg] = useState('');
+  const [showTutor, setShowTutor] = useState(false);
+  
+  // Overall exam timer (80 min)
+  const examTimer = useTimer(80 * 60, () => handleSubmit());
+
+  const q = questions[currentIndex];
+  
+  // Min time logic
+  const getMinTime = (difficulty) => {
+    if (difficulty === '하') return 15;
+    if (difficulty === '중') return 25;
+    if (difficulty === '상') return 35;
+    return 15;
+  };
+  
+  const minTime = getMinTime(q?.difficulty);
+  const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+  const remainingWait = Math.max(0, minTime - elapsed);
+
+  // Force re-render every second to update remaining wait time
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setTick(t => t + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleNext = () => {
+    const isSubjective = q.type !== 'multiple_choice';
+    const ans = answers[q.id];
+
+    if (isSubjective && (!ans || ans.trim().length < 2)) {
+      setWarningMsg("정답을 2글자 이상 입력해주세요. 모르면 최대한 써보세요!");
+      setTimeout(() => setWarningMsg(''), 3000);
+      return;
+    }
+
+    if (remainingWait > 0) {
+      setWarningMsg(`이 문제를 조금 더 살펴보세요! (${remainingWait}초 후 넘어갈 수 있습니다)`);
+      setTimeout(() => setWarningMsg(''), 3000);
+      return;
+    }
+
+    // Move next or submit
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(i => i + 1);
+      setQuestionStartTime(Date.now());
+    } else {
+      handleSubmit();
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(i => i - 1);
+      setQuestionStartTime(Date.now()); 
+    }
+  };
+
+  const handleSubmit = () => {
+    onSubmit(answers);
+  };
+
+  const handleAnswerSelect = (val) => {
+    if (answers[q.id] && q.isLocked) return; 
+    
+    if (q.type === 'multiple_choice') {
+      if (answers[q.id] === val) {
+        if (remainingWait <= 0) {
+          const newAns = {...answers};
+          delete newAns[q.id];
+          setAnswers(newAns);
+        }
+      } else {
+        setAnswers({ ...answers, [q.id]: val });
+      }
+    } else {
+      setAnswers({ ...answers, [q.id]: val });
+    }
+  };
+
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    if (q?.chart_data && canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      if (canvasRef.current.chartInstance) {
+        canvasRef.current.chartInstance.destroy();
+      }
+      
+      const chartConfig = {
+        type: q.chart_data.type || 'line',
+        data: q.chart_data.data || q.chart_data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          ...(q.chart_data.options || {})
+        }
+      };
+      canvasRef.current.chartInstance = new Chart(ctx, chartConfig);
+    }
+  }, [q]);
+
+  if (!q) return null;
+
+  const isLast = currentIndex === questions.length - 1;
+  const answeredCount = Object.keys(answers).length;
+  const progressPercent = Math.round((answeredCount / questions.length) * 100);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {showTutor && (
+        <TutorModal question={q} onClose={() => setShowTutor(false)} />
+      )}
+      <div className="app-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <h1>{title}</h1>
+          <div className={`badge badge-${q.difficulty}`}>{q.difficulty} 난이도</div>
+          <div style={{ fontSize: '0.9rem', background: 'rgba(255,255,255,0.2)', padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
+            {q.subject} - {q.chapter}
+          </div>
+        </div>
+        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: examTimer.seconds < 300 ? 'var(--danger)' : examTimer.seconds < 600 ? 'var(--warning)' : 'inherit' }}>
+          ⏱ {examTimer.format}
+        </div>
+      </div>
+      
+      <div className="progress-container" style={{ borderRadius: 0 }}>
+        <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
+      </div>
+
+      <div className="exam-layout exam-mode">
+        {/* Left Sidebar: OMR and Mini-map */}
+        <div className="omr-sidebar">
+          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+            <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>문제 {currentIndex + 1} / {questions.length}</span>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{progressPercent}% 완료</div>
+          </div>
+          
+          <div className="omr-container">
+            <h4 style={{ textAlign: 'center', marginBottom: '1rem', color: 'var(--primary)', borderBottom: '2px solid var(--border)', paddingBottom: '0.5rem' }}>
+              답안 입력
+            </h4>
+            
+            {q.type === 'multiple_choice' ? (
+              <div className="omr-options">
+                {['①', '②', '③', '④', '⑤'].map((val, idx) => (
+                  <button 
+                    key={idx}
+                    className={`omr-btn ${answers[q.id] === val ? 'selected' : ''}`}
+                    onClick={() => handleAnswerSelect(val)}
+                  >
+                    {val}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div>
+                <input 
+                  type="text" 
+                  placeholder="주관식 정답 입력" 
+                  value={answers[q.id] || ''}
+                  onChange={e => handleAnswerSelect(e.target.value)}
+                  style={{ fontSize: '1.2rem', textAlign: 'center' }}
+                />
+              </div>
+            )}
+          </div>
+          
+          <button 
+            className="btn btn-accent" 
+            style={{ width: '100%', marginBottom: '1rem', background: '#e74c3c' }} 
+            onClick={() => setShowTutor(true)}
+          >
+            🆘 원장님 호출
+          </button>
+          
+          <h4 style={{ fontSize: '0.9rem', margin: '1rem 0 0.5rem', color: 'var(--text-muted)' }}>전체 문항</h4>
+          <div className="omr-grid-overview">
+            {questions.map((qItem, idx) => (
+              <div 
+                key={qItem.id} 
+                className={`omr-mini-dot ${answers[qItem.id] ? 'filled' : ''} ${idx === currentIndex ? 'current' : ''}`}
+                onClick={() => {
+                  if (idx <= currentIndex || !qItem.isLocked) { // basic jump logic
+                    setCurrentIndex(idx);
+                  }
+                }}
+              >
+                {idx + 1}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Content Area: Question Display */}
+        <div className="exam-body">
+          {warningMsg && (
+            <div style={{ background: '#fee2e2', color: '#991b1b', padding: '0.75rem', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold', marginBottom: '1rem', animation: 'fadeIn 0.3s' }}>
+              <i className="fa-solid fa-circle-exclamation"></i> {warningMsg}
+            </div>
+          )}
+
+          <div className="exam-question-box">
+            <div dangerouslySetInnerHTML={renderMath(q.question_text)} />
+            
+            {q.question_svg && (
+              <div style={{ marginTop: '1.5rem', textAlign: 'center', maxWidth: '400px', margin: '1.5rem auto 0' }}>
+                 <div dangerouslySetInnerHTML={{ __html: q.question_svg }} />
+              </div>
+            )}
+            
+            {q.chart_data && (
+              <div style={{ marginTop: '1.5rem', height: '250px', width: '100%', position: 'relative' }}>
+                 <canvas ref={canvasRef}></canvas>
+              </div>
+            )}
+            
+            {q.type === 'multiple_choice' && (
+              <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {q.options.map((opt, idx) => (
+                  <div key={idx} style={{ padding: '0.8rem', fontSize: '1.1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <span dangerouslySetInnerHTML={renderMath(opt)} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+            <button className="btn btn-outline" onClick={handlePrev} disabled={currentIndex === 0}>
+              <i className="fa-solid fa-arrow-left"></i> 이전 문제
+            </button>
+            
+            <button 
+              className="btn btn-primary" 
+              onClick={handleNext}
+              style={{ minWidth: '150px' }}
+            >
+              {isLast ? '제출하기' : '다음 문제'} <i className="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function MathDeepDiveModal({ question, onClose, trackResult }) {
+  const [step, setStep] = useState(1);
+  const [conceptData, setConceptData] = useState(null);
+  const [similarQuestion, setSimilarQuestion] = useState(null);
+  const [userAns, setUserAns] = useState('');
+  const [feedback, setFeedback] = useState('');
+  const [loading, setLoading] = useState(false);
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    // Load concept explanation on mount
+    loadConcept();
+  }, []);
+
+  const loadConcept = async (type = "concept") => {
+    setLoading(true);
+    try {
+      if (type === "similar") {
+        const q = await generateMathDeepDive(question, null, "similar");
+        setSimilarQuestion(q);
+        setStep(3);
+      } else {
+        const text = await callGeminiTextAPI(
+          "너는 아주 친절한 중1 수학 선생님이다.", 
+          type === "concept" ? 
+            `학생이 다음 문제를 틀렸습니다.\n문제: ${question.question_text}\n핵심 원리를 차근차근 매우 쉽게 설명해주세요. LaTeX 수식을 활용하세요.` :
+            `이전 설명을 학생이 조금 어려워합니다. 더 쉬운 비유와 예시로 다시 짧게 설명해주세요.`
+        );
+        setConceptData(text);
+      }
+    } catch (e) {
+      alert("데이터를 불러오는데 실패했습니다.");
+    }
+    setLoading(false);
+  };
+
+  const handleUnderstand = () => {
+    setStep(2);
+  };
+
+  const handleNotUnderstand = () => {
+    loadConcept("different");
+  };
+
+  const handleStartSimilar = () => {
+    loadConcept("similar");
+  };
+
+  const submitSimilar = () => {
+    if (!userAns) return;
+    const isCorrect = userAns === similarQuestion.correct_answer || 
+      (similarQuestion.type === 'multiple_choice' && "①②③④⑤".indexOf(userAns) === similarQuestion.correct_index);
+    
+    if (isCorrect) {
+      setFeedback("🎉 완벽해요! 정답입니다.");
+      trackResult(true);
+      setTimeout(onClose, 2000);
+    } else {
+      setFeedback("아쉽네요, 다시 한번 생각해볼까요?");
+      trackResult(false);
+    }
+  };
+
+  useEffect(() => {
+    if (similarQuestion?.chart_data && canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      if (canvasRef.current.chartInstance) canvasRef.current.chartInstance.destroy();
+      canvasRef.current.chartInstance = new Chart(ctx, {
+        type: similarQuestion.chart_data.type || 'line',
+        data: similarQuestion.chart_data.data || similarQuestion.chart_data,
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+  }, [similarQuestion]);
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h2 style={{ color: 'var(--primary)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <i className="fa-solid fa-chalkboard-user"></i> 개념 심화 학습
+        </h2>
+
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '3rem' }}>
+            <div className="spinner" style={{ margin: '0 auto' }}></div>
+            <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>선생님이 설명을 준비하고 있어요...</p>
+          </div>
+        ) : (
+          <>
+            {step === 1 && conceptData && (
+              <div style={{ animation: 'fadeIn 0.5s' }}>
+                <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', lineHeight: '1.6', fontSize: '1.1rem' }}>
+                  <div dangerouslySetInnerHTML={renderMath(conceptData)} />
+                </div>
+                
+                <div style={{ marginTop: '2rem', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                  <p style={{ fontWeight: 'bold', marginBottom: '1rem' }}>설명이 잘 이해되나요?</p>
+                  <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                    <button className="btn btn-primary" onClick={handleUnderstand}>네, 이해했어요!</button>
+                    <button className="btn btn-outline" onClick={handleNotUnderstand}>다시 설명해 주세요</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div style={{ animation: 'fadeIn 0.5s', textAlign: 'center', padding: '2rem' }}>
+                <i className="fa-solid fa-thumbs-up" style={{ fontSize: '3rem', color: 'var(--success)', marginBottom: '1rem' }}></i>
+                <h3 style={{ marginBottom: '1rem' }}>좋아요! 이제 원리를 알았군요.</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>제대로 이해했는지 비슷한 문제를 하나 풀어볼까요?</p>
+                <button className="btn btn-accent" onClick={handleStartSimilar}>유사문제 풀기</button>
+              </div>
+            )}
+
+            {step === 3 && similarQuestion && (
+              <div style={{ animation: 'fadeIn 0.5s' }}>
+                <div className="exam-question-box">
+                  <div dangerouslySetInnerHTML={renderMath(similarQuestion.question_text)} />
+                  {similarQuestion.chart_data && (
+                    <div style={{ marginTop: '1.5rem', height: '250px', width: '100%', position: 'relative' }}>
+                       <canvas ref={canvasRef}></canvas>
+                    </div>
+                  )}
+                  {similarQuestion.type === 'multiple_choice' && (
+                    <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {similarQuestion.options.map((opt, idx) => (
+                        <div key={idx} dangerouslySetInnerHTML={renderMath(opt)} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="omr-container">
+                  {similarQuestion.type === 'multiple_choice' ? (
+                    <div className="omr-options">
+                      {['①', '②', '③', '④', '⑤'].map((val) => (
+                        <button 
+                          key={val}
+                          className={`omr-btn ${userAns === val ? 'selected' : ''}`}
+                          onClick={() => setUserAns(val)}
+                        >
+                          {val[0]}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <input 
+                      type="text" 
+                      value={userAns} 
+                      onChange={e => setUserAns(e.target.value)} 
+                      placeholder="정답" 
+                      style={{ textAlign: 'center' }}
+                    />
+                  )}
+                  <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+                    <button className="btn btn-primary" onClick={submitSimilar}>정답 확인</button>
+                  </div>
+                  {feedback && (
+                    <div style={{ marginTop: '1rem', textAlign: 'center', fontWeight: 'bold', color: feedback.includes('완벽해요') ? 'var(--success)' : 'var(--danger)' }}>
+                      {feedback}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ReviewScreen handles both Exam-like UI for retrying and checking answers.
+// To save space, we just render ExamScreen for retrying, but we need hint UI.
+// So let's wrap ExamScreen or implement a simplified one for review.
+// Spec says: Review is basically the same as Exam but with Hint button.
+// For simplicity and matching spec exactly, let's create a custom ReviewScreen UI.
+// TutorModal Component for AI Help
+function TutorModal({ question, onClose }) {
+  const [messages, setMessages] = useState([
+    { role: 'assistant', text: "원장님입니다. 이 문제가 어렵나요? 어떤 부분이 헷갈리는지 편하게 말해주세요." }
+  ]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
+    
+    const userMsg = input.trim();
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setLoading(true);
+
+    try {
+      const prompt = `학생이 질문했습니다: "${userMsg}"\n\n현재 풀고 있는 문제 정보:\n과목: ${question.subject}\n단원: ${question.chapter}\n문제 텍스트: ${question.question_text}\n보기: ${question.options ? question.options.join(', ') : '없음'}\n정답: ${question.correct_answer}\n해설: ${question.explanation}\n\n너는 친절하고 위트있는 중학교 종합학원 원장님이다. 정답을 바로 알려주지 말고, 학생이 스스로 생각할 수 있도록 힌트를 주거나, 친절하게 단계별로 설명해라. 존댓말을 사용하고, 격려해라.`;
+      
+      const responseText = await callGeminiTextAPI("너는 친절한 학원 원장님이다.", prompt, "gemini-3.1-flash-lite");
+      setMessages(prev => [...prev, { role: 'assistant', text: responseText }]);
+    } catch (e) {
+      setMessages(prev => [...prev, { role: 'assistant', text: "미안해요, 지금 원장님이 조금 바쁘네요. 잠시 후 다시 질문해주겠어요?" }]);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="modal-overlay" style={{ zIndex: 1000 }}>
+      <div className="modal-content" style={{ maxWidth: '600px', display: 'flex', flexDirection: 'column', height: '80vh' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h2 style={{ color: 'var(--primary)', margin: 0 }}>
+            <i className="fa-solid fa-user-tie"></i> 원장님 호출 (AI 도우미)
+          </h2>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
+            <i className="fa-solid fa-times"></i>
+          </button>
+        </div>
+        
+        <div className="chat-container">
+          <div className="chat-messages">
+            {messages.map((m, i) => (
+              <div key={i} className={`chat-bubble ${m.role === 'user' ? 'user' : 'ai'}`}>
+                {m.role === 'assistant' && <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px' }}>원장님</div>}
+                <div dangerouslySetInnerHTML={renderMath(m.text)} />
+              </div>
+            ))}
+            {loading && (
+              <div className="chat-bubble ai">
+                <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '3px' }}></div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          <div className="chat-input-area">
+            <input 
+              type="text" 
+              value={input} 
+              onChange={e => setInput(e.target.value)} 
+              onKeyPress={e => e.key === 'Enter' && handleSend()}
+              placeholder="질문을 입력하세요..." 
+              style={{ flex: 1 }}
+            />
+            <button className="btn btn-primary" onClick={handleSend} disabled={loading || !input.trim()}>
+              전송
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewScreen({ questions, onComplete, isSecondRound }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [hintCount, setHintCount] = useState(Math.floor(questions.length * 0.3) || 1);
+  const [showHint, setShowHint] = useState(false);
+  const [showDeepDive, setShowDeepDive] = useState(false);
+  const [showTutor, setShowTutor] = useState(false);
+  
+  // Evaluation state: null -> answering -> checked
+  const [evalState, setEvalState] = useState({}); 
+
+  const q = questions[currentIndex];
+
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(i => i + 1);
+      setShowHint(false);
+    } else {
+      onComplete(evalState); // Pass evaluation results back
+    }
+  };
+
+  const handleUseHint = () => {
+    if (hintCount > 0 && !showHint) {
+      setHintCount(h => h - 1);
+      setShowHint(true);
+    }
+  };
+
+  const handleCheckAnswer = () => {
+    const userAns = answers[q.id];
+    if (!userAns) return;
+
+    let isCorrect = false;
+    if (q.type === 'multiple_choice') {
+      const correctText = q.options[q.correct_index];
+      isCorrect = correctText.startsWith(userAns) || userAns === q.correct_answer;
+    } else {
+      isCorrect = userAns.trim() === q.correct_answer.trim();
+    }
+
+    setEvalState(prev => ({
+      ...prev,
+      [q.id]: {
+        correct: isCorrect,
+        usedHint: showHint
+      }
+    }));
+
+    // If second round and wrong and it's Math, trigger deep dive
+    if (!isCorrect && isSecondRound && q.subject === '수학') {
+      setShowDeepDive(true);
+    }
+  };
+
+  const currentEval = evalState[q?.id];
+
+  if (!q) return null;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {showDeepDive && (
+        <MathDeepDiveModal 
+          question={q} 
+          onClose={() => setShowDeepDive(false)} 
+          trackResult={() => {}}
+        />
+      )}
+      {showTutor && (
+        <TutorModal question={q} onClose={() => setShowTutor(false)} />
+      )}
+      
+      <div className="app-header" style={{ background: isSecondRound ? '#e74c3c' : '#f39c12' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <h1>오답노트 {isSecondRound ? '2' : '1'}회차</h1>
+          <div className="badge" style={{ background: 'rgba(0,0,0,0.2)' }}>남은 힌트: {hintCount}회</div>
+        </div>
+      </div>
+      
+      <div className="exam-layout exam-mode">
+        {/* Left Sidebar */}
+        <div className="omr-sidebar">
+          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+            <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>문제 {currentIndex + 1} / {questions.length}</span>
+          </div>
+          
+          <div className="omr-container">
+            <h4 style={{ textAlign: 'center', marginBottom: '1rem', color: 'var(--primary)', borderBottom: '2px solid var(--border)', paddingBottom: '0.5rem' }}>
+              답안 입력
+            </h4>
+            
+            {!currentEval ? (
+              q.type === 'multiple_choice' ? (
+                <div className="omr-options">
+                  {['①', '②', '③', '④', '⑤'].map((val) => (
+                    <button 
+                      key={val}
+                      className={`omr-btn ${answers[q.id] === val ? 'selected' : ''}`}
+                      onClick={() => setAnswers({...answers, [q.id]: val})}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <input 
+                  type="text" 
+                  value={answers[q.id] || ''} 
+                  onChange={e => setAnswers({...answers, [q.id]: e.target.value})} 
+                  placeholder="정답" 
+                  style={{ textAlign: 'center', width: '100%', padding: '0.5rem' }}
+                />
+              )
+            ) : (
+               <div style={{ textAlign: 'center', fontWeight: 'bold', color: currentEval.correct ? 'var(--success)' : 'var(--danger)' }}>
+                 {currentEval.correct ? '정답' : '오답'}
+               </div>
+            )}
+            
+            {!currentEval && (
+              <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+                <button className="btn btn-primary" onClick={handleCheckAnswer} disabled={!answers[q.id]} style={{ width: '100%' }}>
+                  정답 확인
+                </button>
+              </div>
+            )}
+          </div>
+          
+          <button 
+            className="btn btn-accent" 
+            style={{ width: '100%', marginBottom: '1rem', background: '#e74c3c' }} 
+            onClick={() => setShowTutor(true)}
+          >
+            🆘 원장님 호출
+          </button>
+          
+          {!currentEval && (
+            <button 
+              className="btn btn-outline" 
+              style={{ width: '100%', marginBottom: '1rem' }} 
+              onClick={handleUseHint}
+              disabled={hintCount === 0 || showHint}
+            >
+              <i className="fa-regular fa-lightbulb"></i> 힌트 사용
+            </button>
+          )}
+
+          <h4 style={{ fontSize: '0.9rem', margin: '0.5rem 0', color: 'var(--text-muted)' }}>전체 문항</h4>
+          <div className="omr-grid-overview">
+            {questions.map((qItem, idx) => {
+              const isEval = evalState[qItem.id];
+              let bgColor = '';
+              let color = '';
+              if (isEval) {
+                bgColor = isEval.correct ? 'var(--success)' : 'var(--danger)';
+                color = 'white';
+              } else if (answers[qItem.id]) {
+                bgColor = 'var(--primary)';
+                color = 'white';
+              }
+
+              return (
+                <div 
+                  key={qItem.id} 
+                  className={`omr-mini-dot ${idx === currentIndex ? 'current' : ''}`}
+                  style={{ background: bgColor || '#e2e8f0', color: color || '#64748b' }}
+                  onClick={() => setCurrentIndex(idx)}
+                >
+                  {idx + 1}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right Content Area */}
+        <div className="exam-body">
+          {showHint && (
+            <div style={{ background: '#fffbeb', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', border: '1px solid #fde68a', animation: 'fadeIn 0.3s' }}>
+              <strong style={{ color: '#b45309' }}>💡 힌트: </strong>
+              <span dangerouslySetInnerHTML={renderMath(q.hint || "힌트가 없습니다.")} />
+            </div>
+          )}
+
+          <div className="exam-question-box">
+            <div dangerouslySetInnerHTML={renderMath(q.question_text)} />
+            {q.question_svg && (
+              <div style={{ marginTop: '1.5rem', textAlign: 'center', maxWidth: '400px', margin: '1.5rem auto 0' }}>
+                 <div dangerouslySetInnerHTML={{ __html: q.question_svg }} />
+              </div>
+            )}
+            {q.type === 'multiple_choice' && (
+              <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {q.options.map((opt, idx) => (
+                  <div key={idx} style={{ padding: '0.8rem', fontSize: '1.1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <span dangerouslySetInnerHTML={renderMath(opt)} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {currentEval && (
+            <div style={{ background: currentEval.correct ? '#f0fdf4' : '#fef2f2', border: `2px solid ${currentEval.correct ? '#22c55e' : '#ef4444'}`, borderRadius: '12px', padding: '1.5rem', marginTop: 'auto' }}>
+              <h3 style={{ color: currentEval.correct ? '#166534' : '#991b1b', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                {currentEval.correct ? <i className="fa-solid fa-circle-check"></i> : <i className="fa-solid fa-circle-xmark"></i>}
+                {currentEval.correct ? '정답입니다!' : '오답입니다.'}
+              </h3>
+              
+              <div style={{ background: 'white', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                <strong>정답: </strong> <span dangerouslySetInnerHTML={renderMath(q.correct_answer)} />
+              </div>
+
+              {q.subject === '수학' && q.math_solution_steps ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <h4 style={{ color: 'var(--primary)' }}>단계별 풀이</h4>
+                  {q.math_solution_steps.map((step, idx) => (
+                    <div key={idx} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', borderLeft: '4px solid var(--primary)' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Step {step.step}. {step.title}</div>
+                      <div dangerouslySetInnerHTML={renderMath(step.content)} />
+                      {step.latex && <div dangerouslySetInnerHTML={renderMath(`$$${step.latex}$$`)} />}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ background: 'white', padding: '1rem', borderRadius: '8px' }}>
+                  <strong>해설: </strong> <span dangerouslySetInnerHTML={renderMath(q.explanation)} />
+                </div>
+              )}
+
+              <button className="btn btn-primary w-full mt-4" onClick={handleNext}>
+                {currentIndex < questions.length - 1 ? '다음 문제' : '결과 보기'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+function ResultScreen({ data, onHome }) {
+  const chartRef1 = useRef(null);
+  const chartRef2 = useRef(null);
+
+  useEffect(() => {
+    // Subject Chart
+    if (chartRef1.current) {
+      const ctx = chartRef1.current.getContext('2d');
+      const subjects = Object.keys(data.by_subject);
+      const rates = subjects.map(s => Math.round(data.by_subject[s].rate * 100));
+      
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: subjects,
+          datasets: [{
+            label: '정답률 (%)',
+            data: rates,
+            backgroundColor: '#1a3a6b',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { min: 0, max: 100 } }
+        }
+      });
+    }
+
+    // Difficulty Chart
+    if (chartRef2.current) {
+      const ctx = chartRef2.current.getContext('2d');
+      const diffs = ['하', '중', '상'];
+      const correct = diffs.map(d => data.by_difficulty[d].correct);
+      const incorrect = diffs.map(d => data.by_difficulty[d].total - data.by_difficulty[d].correct);
+
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: diffs,
+          datasets: [
+            { data: correct, backgroundColor: ['#2ecc71', '#f1c40f', '#e74c3c'] }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+  }, [data]);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(JSON.stringify(data, null, 2))
+      .then(() => alert('클립보드에 복사되었습니다! 안티그래비티에게 전달해주세요.'))
+      .catch(() => alert('복사에 실패했습니다.'));
+  };
+
+  return (
+    <div className="content-area" style={{ overflowY: 'auto' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        
+        <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+          <i className="fa-solid fa-trophy" style={{ fontSize: '4rem', color: 'var(--accent)', marginBottom: '1rem' }}></i>
+          <h1 style={{ fontSize: '2rem', color: 'var(--primary)' }}>학습 평가 결과</h1>
+          <p style={{ color: 'var(--text-muted)' }}>최종 정답률: {Math.round(data.summary.final_correct_rate * 100)}%</p>
+        </div>
+
+        <div className="grid-2">
+          <div className="glass-panel" style={{ padding: '1.5rem' }}>
+            <h3 style={{ marginBottom: '1rem', borderBottom: '2px solid var(--border)', paddingBottom: '0.5rem' }}>과목별 정답률</h3>
+            <div style={{ height: '200px' }}><canvas ref={chartRef1}></canvas></div>
+          </div>
+          <div className="glass-panel" style={{ padding: '1.5rem' }}>
+            <h3 style={{ marginBottom: '1rem', borderBottom: '2px solid var(--border)', paddingBottom: '0.5rem' }}>난이도별 정답수</h3>
+            <div style={{ height: '200px' }}><canvas ref={chartRef2}></canvas></div>
+          </div>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+          <h3 style={{ marginBottom: '1rem', borderBottom: '2px solid var(--border)', paddingBottom: '0.5rem' }}>오답노트 학습 효과</h3>
+          <ul style={{ lineHeight: '1.8', fontSize: '1.1rem' }}>
+            <li>본시험 정답: {data.summary.exam_correct}개</li>
+            <li>오답노트 1회차 추가 정답: {data.summary.review1_correct}개</li>
+            <li>오답노트 2회차 추가 정답: {data.summary.review2_correct}개</li>
+            <li>끝까지 틀린 문제: {data.summary.total_questions - data.summary.final_correct}개</li>
+            <li>힌트 사용 횟수: {data.summary.hint_used}회</li>
+          </ul>
+        </div>
+
+        {data.ai_feedback && (
+          <div className="glass-panel" style={{ padding: '1.5rem', background: '#f0fdf4', borderColor: '#bbf7d0' }}>
+            <h3 style={{ marginBottom: '1rem', color: '#166534' }}><i className="fa-solid fa-robot"></i> AI 종합 피드백</h3>
+            <p style={{ lineHeight: '1.6' }}>{data.ai_feedback}</p>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem', paddingBottom: '2rem' }}>
+          <button className="btn btn-outline" onClick={copyToClipboard}>
+            <i className="fa-regular fa-copy"></i> 클립보드 복사
+          </button>
+          <button className="btn btn-primary" onClick={onHome}>
+            <i className="fa-solid fa-house"></i> 홈으로
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+// Main App Component
+function App() {
+  const [status, setStatus] = useState('SETUP'); // SETUP, EXAM, REVIEW1, REVIEW2, RESULT
+  const [examQuestions, setExamQuestions] = useState([]);
+  const [review1Questions, setReview1Questions] = useState([]);
+  const [review2Questions, setReview2Questions] = useState([]);
+  const [examResults, setExamResults] = useState(null);
+  const [review1Results, setReview1Results] = useState(null);
+  const [review2Results, setReview2Results] = useState(null);
+  
+  const [selectedSubjects, setSelectedSubjects] = useState({});
+
+  const handleStartExam = (selected) => {
+    setSelectedSubjects(selected);
+    
+    // selected is an array of subject names now, e.g. ["국어", "수학"]
+    const newQuestions = window.STATIC_QUESTIONS.filter(q => 
+      selected.includes(q.subject)
+    );
+
+    if (newQuestions.length === 0) {
+      alert("선택된 과목의 문제가 없습니다.");
+      return;
+    }
+
+    setExamQuestions(newQuestions);
+    setStatus('EXAM');
+  };
+
+  const handleExamSubmit = (answers) => {
+    let score = 0;
+    const wrong = [];
+    
+    examQuestions.forEach(q => {
+      const userAns = answers[q.id];
+      if (!userAns) {
+        wrong.push(q);
+        return;
+      }
+      
+      let isCorrect = false;
+      if (q.type === 'multiple_choice') {
+        const correctText = q.options[q.correct_index];
+        isCorrect = correctText.startsWith(userAns) || userAns === q.correct_answer;
+      } else {
+        isCorrect = userAns.trim() === q.correct_answer.trim();
+      }
+      
+      if (isCorrect) score += 100 / examQuestions.length;
+      else wrong.push(q);
+    });
+
+    setExamResults({ score: Math.round(score), total: examQuestions.length, wrongCount: wrong.length });
+    
+    if (wrong.length > 0) {
+      setReview1Questions(wrong);
+      setStatus('REVIEW1');
+    } else {
+      setStatus('RESULT');
+    }
+  };
+
+  const handleReview1Complete = (evalResults) => {
+    const wrongAgain = [];
+    review1Questions.forEach(q => {
+      const result = evalResults[q.id];
+      if (!result || !result.correct) {
+        wrongAgain.push(q);
+      }
+    });
+
+    setReview1Results({
+      total: review1Questions.length,
+      solved: review1Questions.length - wrongAgain.length,
+      wrongAgainCount: wrongAgain.length
+    });
+
+    if (wrongAgain.length > 0) {
+      setReview2Questions(wrongAgain);
+      setStatus('REVIEW2');
+    } else {
+      setStatus('RESULT');
+    }
+  };
+
+  const handleReview2Complete = (evalResults) => {
+    const wrongAgain = [];
+    review2Questions.forEach(q => {
+      const result = evalResults[q.id];
+      if (!result || !result.correct) {
+        wrongAgain.push(q);
+      }
+    });
+
+    setReview2Results({
+      total: review2Questions.length,
+      solved: review2Questions.length - wrongAgain.length,
+      wrongAgainCount: wrongAgain.length
+    });
+
+    setStatus('RESULT');
+  };
+
+  const handleRestart = () => {
+    setStatus('SETUP');
+    setExamQuestions([]);
+    setReview1Questions([]);
+    setReview2Questions([]);
+    setExamResults(null);
+    setReview1Results(null);
+    setReview2Results(null);
+  };
+
+  return (
+    <div className="app-container">
+      {status === 'SETUP' && (
+        <SetupScreen onStart={handleStartExam} />
+      )}
+      
+      {status === 'EXAM' && (
+        <ExamScreen 
+          questions={examQuestions} 
+          onSubmit={handleExamSubmit} 
+        />
+      )}
+
+      {status === 'REVIEW1' && (
+        <ReviewScreen 
+          questions={review1Questions} 
+          onComplete={handleReview1Complete} 
+          isSecondRound={false}
+        />
+      )}
+
+      {status === 'REVIEW2' && (
+        <ReviewScreen 
+          questions={review2Questions} 
+          onComplete={handleReview2Complete} 
+          isSecondRound={true}
+        />
+      )}
+
+      {status === 'RESULT' && (
+        <ResultScreen 
+          examResults={examResults}
+          review1Results={review1Results}
+          review2Results={review2Results}
+          onRestart={handleRestart}
+        />
+      )}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+  </script>
+</body>
+</html>
