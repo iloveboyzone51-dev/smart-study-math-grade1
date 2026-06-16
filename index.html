@@ -52,17 +52,63 @@
     .status-pending { background: #F2F2F7; color: var(--subtext); }
     .status-done { background: #E4F8EB; color: var(--success); }
   </style>
+  <script src="db.js"></script>
 </head>
 <body>
   <div class="header">
     <h1>📚 스마트 학습서 - 메인 허브</h1>
-    <div style="font-weight: bold; color: var(--primary);">밀린 진도를 따라잡자! 파이팅! 🚀</div>
+    <div style="font-weight: bold; color: var(--primary);">밀린 진도를 따라잡자! 파이팅! 🚀  <button onclick="logout()" style="background:none; border:1px solid var(--border); border-radius:8px; padding:5px 10px; cursor:pointer;">로그아웃</button>
+</div>
   </div>
 
   <div class="desktop-layout">
     <!-- Main Content -->
     <main class="main-content">
       <div class="container">
+
+        <!-- Son Inbox (Hidden for Dad) -->
+        <div id="son-inbox" class="card" style="display:none; border-left: 5px solid var(--primary);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 style="color: var(--text); margin: 0;">💌 아빠의 편지함</h2>
+            <div id="son-stickers" style="font-size:1.2rem; font-weight:bold; color:var(--warning);">⭐ 모은 스티커: 0개</div>
+          </div>
+          <div id="son-messages-list" style="display:flex; flex-direction:column; gap:10px;">
+            <div style="color:var(--subtext); text-align:center; padding:20px;">도착한 편지가 없습니다.</div>
+          </div>
+        </div>
+
+
+        <!-- Dad Dashboard (Hidden for Son) -->
+        <div id="dad-dashboard" style="display:none;">
+          <div class="card" style="border-left: 5px solid var(--warning);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h2 style="color: var(--text); margin: 0;">📬 아들의 오류 제보함</h2>
+              <button onclick="renderDadFeedbacks()" class="btn-primary" style="padding: 5px 15px; border-radius:8px; border:none; cursor:pointer;">새로고침</button>
+            </div>
+            <div id="dad-feedback-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+          </div>
+
+          <div class="card" style="border-left: 5px solid var(--success);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h2 style="color: var(--text); margin: 0;">💬 아들에게 편지 보내기</h2>
+              <button onclick="draftAiMessage()" class="btn-primary" style="padding: 5px 15px; border-radius:8px; border:none; background:#8E24AA; color:white; cursor:pointer; font-weight:bold;">🤖 AI 아빠 비서 (초안 작성)</button>
+            </div>
+            <textarea id="dad-msg-input" placeholder="아들에게 보낼 따뜻한 응원이나 피드백을 적어주세요..." style="width:100%; height:120px; padding:15px; border-radius:12px; border:2px solid var(--border); font-size:1.1rem; font-family:inherit; resize:none; margin-bottom:15px;"></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <label style="font-weight:bold; margin-right:10px;">🎁 칭찬 스티커 지급:</label>
+                <select id="dad-reward-select" style="padding:10px; border-radius:8px; border:1px solid var(--border); font-size:1rem;">
+                  <option value="0">주지 않음 (0개)</option>
+                  <option value="1" selected>잘했어요 (1개)</option>
+                  <option value="2">최고예요! (2개)</option>
+                  <option value="3">완벽해요!! (3개)</option>
+                </select>
+              </div>
+              <button onclick="sendDadMessage()" class="btn-primary" style="padding: 12px 30px; border-radius:12px; border:none; cursor:pointer; font-size:1.1rem; font-weight:bold;">🚀 편지 전송</button>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
             <h2 style="color: var(--text); margin: 0;">📅 2026년 6월 학습 달력</h2>
@@ -316,7 +362,110 @@
       else alert(`${day}일자 학습 페이지를 불러올 수 없습니다. 원장님이 준비 중입니다.`);
     }
 
-    renderCalendar();
+    
+    // ==== Phase 5: Login & Role Logic ====
+    requireLogin(async function(role) {
+      if(role === 'son') {
+        document.getElementById('son-inbox').style.display = 'block';
+        // Son view setup
+        renderCalendar();
+        
+        await getCloudDB();
+        document.getElementById('son-stickers').innerText = `⭐ 모은 스티커: ${window.cloudDB.stickers || 0}개`;
+        const mList = document.getElementById('son-messages-list');
+        if(window.cloudDB.messages && window.cloudDB.messages.length > 0) {
+          mList.innerHTML = window.cloudDB.messages.map(m => `
+            <div style="background:#F8F9FF; padding:15px; border-radius:12px; border:1px solid var(--primary);">
+              <div style="font-size:0.8rem; color:var(--subtext); margin-bottom:5px;">${new Date(m.date).toLocaleString()}</div>
+              <div style="font-size:1.1rem; line-height:1.5;">${m.content.replace(/\n/g, '<br>')}</div>
+              ${m.stickers > 0 ? `<div style="margin-top:10px; color:var(--warning); font-weight:bold;">🎁 아빠가 칭찬 스티커 ${m.stickers}개를 보냈습니다!</div>` : ''}
+            </div>
+          `).reverse().join('');
+        }
+      } else if(role === 'dad') {
+        document.getElementById('dad-dashboard').style.display = 'block';
+        // Hide Son's calendar and stats
+        document.getElementById('calendar').parentElement.style.display = 'none';
+        document.querySelector('.stats').style.display = 'none';
+        
+        await getCloudDB();
+        renderDadFeedbacks();
+      }
+    });
+
+    function renderDadFeedbacks() {
+      const fbList = document.getElementById('dad-feedback-list');
+      if(!window.cloudDB.feedbacks || window.cloudDB.feedbacks.length === 0) {
+        fbList.innerHTML = `<div style="color:var(--subtext); text-align:center; padding:20px;">새롭게 제보된 오류가 없습니다.</div>`;
+        return;
+      }
+      fbList.innerHTML = window.cloudDB.feedbacks.map(f => `
+        <div style="background:#FFF9E6; padding:15px; border-radius:12px; border:1px solid var(--warning);">
+          <div style="display:flex; justify-content:space-between;">
+            <div style="font-size:0.8rem; color:var(--subtext);">${new Date(f.date).toLocaleString()} | [${f.lessonDate}]</div>
+            <button onclick="resolveFeedback(${f.id})" style="background:var(--success); color:white; border:none; border-radius:6px; padding:3px 10px; cursor:pointer;">확인 완료</button>
+          </div>
+          <div style="font-weight:bold; margin-top:5px; color:var(--danger);">사유: ${f.issue}</div>
+          <div style="margin-top:5px; font-size:0.95rem;"><b>문제:</b> ${f.question}</div>
+        </div>
+      `).reverse().join('');
+    }
+
+    async function resolveFeedback(id) {
+      window.cloudDB.feedbacks = window.cloudDB.feedbacks.filter(f => f.id !== id);
+      await setCloudDB();
+      renderDadFeedbacks();
+    }
+
+    async function sendDadMessage() {
+      const text = document.getElementById('dad-msg-input').value.trim();
+      const stickers = parseInt(document.getElementById('dad-reward-select').value);
+      if(!text) return alert("메시지를 입력하세요.");
+      
+      const btn = event.target;
+      btn.innerText = "전송 중...";
+      btn.disabled = true;
+
+      await getCloudDB();
+      if(!window.cloudDB.messages) window.cloudDB.messages = [];
+      window.cloudDB.messages.push({
+        date: new Date().toISOString(),
+        content: text,
+        stickers: stickers
+      });
+      window.cloudDB.stickers = (window.cloudDB.stickers || 0) + stickers;
+      
+      await setCloudDB();
+      
+      document.getElementById('dad-msg-input').value = '';
+      btn.innerText = "🚀 편지 전송";
+      btn.disabled = false;
+      alert("아들에게 편지가 성공적으로 발송되었습니다!");
+    }
+
+    async function draftAiMessage() {
+      // Get AI prompt
+      const btn = event.target;
+      const oldText = btn.innerText;
+      btn.innerText = "🤖 생각 중...";
+      btn.disabled = true;
+
+      const prompt = "학부모(아빠)가 중1 아들에게 보내는 응원 메시지 초안을 3문장 정도로 짧게 작성해줘. 다정하고 격려하는 톤으로 작성하며, 최근 수학 공부를 열심히 하는 것에 대해 칭찬해주는 내용이어야 해. 이모지도 적당히 사용해.";
+      
+      try {
+        const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=" + API_KEY, {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{role:"user", parts:[{text:prompt}]}] })
+        });
+        const data = await res.json();
+        const reply = data.candidates[0].content.parts[0].text;
+        document.getElementById('dad-msg-input').value = reply;
+      } catch(e) {
+        alert("AI 비서 호출에 실패했습니다.");
+      }
+      btn.innerText = oldText;
+      btn.disabled = false;
+    }
+
 
     function exportData() {
       const data = {};
