@@ -479,12 +479,12 @@ function generateHTML(dayData, nextPath) {
 </html>`;
 }
 
-const day1Next = "../../days/2026-06-13/math_char_expr_2.html";
-const day2Next = "../../days/2026-06-14/math_char_expr_3.html";
+const day1Next = "../../days/2026-06-14/math_char_expr_2.html";
+const day2Next = "../../days/2026-06-15/math_char_expr_3.html";
 const day3Next = "../../index.html";
 
-fs.writeFileSync(path.join(__dirname, '../days/2026-06-12/math_char_expr_1.html'), generateHTML(data.day1, day1Next));
-fs.writeFileSync(path.join(__dirname, '../days/2026-06-13/math_char_expr_2.html'), generateHTML(data.day2, day2Next));
-fs.writeFileSync(path.join(__dirname, '../days/2026-06-14/math_char_expr_3.html'), generateHTML(data.day3, day3Next));
+fs.writeFileSync(path.join(__dirname, '../days/2026-06-13/math_char_expr_1.html'), generateHTML(data.day1, day1Next));
+fs.writeFileSync(path.join(__dirname, '../days/2026-06-14/math_char_expr_2.html'), generateHTML(data.day2, day2Next));
+fs.writeFileSync(path.join(__dirname, '../days/2026-06-15/math_char_expr_3.html'), generateHTML(data.day3, day3Next));
 
 console.log('Build complete!');

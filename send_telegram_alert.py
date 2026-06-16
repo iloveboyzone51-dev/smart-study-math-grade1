@@ -121,7 +121,9 @@ def main():
         
     yesterday_record = None
     for p in progress_list:
-        if p.get("dateKey") == yesterday_str:
+        # dateKey format is like "2026-06-12 (금)"
+        p_date = p.get("dateKey", "").split(" ")[0]
+        if p_date == yesterday_str:
             yesterday_record = p
             break
 
