@@ -255,7 +255,21 @@
       }
     }
 
-    function saveState() { localStorage.setItem(storeKey, JSON.stringify(state)); }
+    function saveState() { 
+      localStorage.setItem(storeKey, JSON.stringify(state)); 
+      
+      let statusStr = "Triangle";
+      let reasonStr = "스테이지 " + state.stage + " 진행 중";
+      if(state.stage === 2) reasonStr = "기초 연습 풀이 중";
+      if(state.stage === 3) reasonStr = "실전 문제 풀이 중";
+      if(state.stage === 4) reasonStr = "AI 마무리 학습 중";
+      if(state.stage === 5) {
+        statusStr = "O";
+        reasonStr = "모든 학습 완료";
+      }
+      const rawDate = dateKey.split(' ')[0].replace(/\./g, '-');
+      localStorage.setItem("status_" + rawDate, JSON.stringify({status: statusStr, reason: reasonStr}));
+    }
 
     function updateNav() {
       document.getElementById('tab-1').className = 'stage-tab' + (state.stage === 1 ? ' active' : ' completed');
@@ -337,13 +351,14 @@
       });
     }
 
-    function finishAdvanced() {
+    async function finishAdvanced() {
       const r = countCorrect('stage-3'); if(r.answered < r.total) return alert("아직 안 푼 문제가 있어요!");
       let score = Math.round((r.correct / r.total) * 100); state.advScore = score; state.stage = 4; saveState();
-      playSound('tada'); for(let i=0; i<3; i++) setTimeout(createConfetti, i*500);
+      playSound('tada');
       document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      document.getElementById('stage-done').classList.add('active');
-      document.getElementById('final-score-txt').innerText = "최종 실전 점수: " + score + "점 / 100점"; updateNav();
+      document.getElementById('stage-4').classList.add('active');
+      document.getElementById('ai-loading').style.display = 'block';
+      await generateFinalQuiz();
     }
 
     let chatHistory = [
@@ -382,6 +397,87 @@
       if(state.stage === 4) { document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active')); document.getElementById('stage-done').classList.add('active'); document.getElementById('final-score-txt').innerText = "최종 실전 점수: " + state.advScore + "점 / 100점"; } 
       else { navTo(state.stage); }
     });
+    let aiQuizState = { total: 0, correct: 0, answered: 0 };
+    async function generateFinalQuiz() {
+      if(state.finalQuizGenerated) {
+        document.getElementById('ai-loading').style.display = 'none';
+        document.getElementById('ai-quiz-container').innerHTML = state.finalQuizHtml;
+        document.getElementById('final-finish-btn').style.display = 'block';
+        return;
+      }
+      
+      const wrongList = (state.wrongLogs || []).map(x => x.q).slice(0, 5).join("\n");
+      let prompt = "학생이 방금 중학교 1학년 수학 문제를 풀고 아래 문제들을 틀렸어:\n" + wrongList + "\n\n이 유형들과 비슷하게, 기초를 다질 수 있는 주관식 수학 문제 5개를 만들어줘. JSON 배열 형태로 출력해. 형식: [{\"q\": \"문제내용(수식은 $로 감싸기)\", \"a\": [\"정답1\", \"정답2\"]}]";
+      
+      if(!wrongList) prompt = "학생이 방금 중학교 1학년 수학 문제를 전부 다 맞았어! 아주 똑똑해. 복습용으로 주관식 수학 문제 5개를 만들어줘. JSON 배열 형태로 출력해. 형식: [{\"q\": \"문제내용(수식은 $로 감싸기)\", \"a\": [\"정답1\", \"정답2\"]}]";
+
+      try {
+        const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=" + API_KEY, {
+          method: "POST", headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ contents: [{role:"user", parts:[{text: prompt}]}] })
+        });
+        const data = await res.json();
+        let text = data.candidates[0].content.parts[0].text;
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const questions = JSON.parse(text);
+        
+        let html = '';
+        questions.forEach((q, i) => {
+          html += `<div class="quiz-card" data-idx="${i}">
+            <div class="q-text">${i+1}. ${q.q}</div>
+            <div class="options subjective" style="margin-top:15px; display:flex; gap:10px;">
+              <input type="text" class="subj-input" placeholder="정답 입력..." style="flex:1; padding:12px; border:2px solid var(--border-color); border-radius:8px; font-size:16px;">
+              <button class="btn-primary" onclick='checkAIQuiz(this, ${JSON.stringify(q.a)})' style="padding:0 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; color:white; background:var(--primary);">확인</button>
+            </div>
+            <div class="feedback" style="display:none; margin-top:15px; font-weight:bold;"></div>
+          </div>`;
+        });
+        
+        document.getElementById('ai-loading').style.display = 'none';
+        const container = document.getElementById('ai-quiz-container');
+        container.innerHTML = html;
+        renderMathInElement(container, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });
+        
+        state.finalQuizGenerated = true;
+        state.finalQuizHtml = html;
+        aiQuizState.total = questions.length;
+        saveState();
+        
+      } catch(e) {
+        document.getElementById('ai-loading').innerHTML = "<p style='color:red'>API 오류로 문제를 생성하지 못했습니다. 새로고침 하거나 그냥 완료를 누르세요.</p>";
+        document.getElementById('final-finish-btn').style.display = 'block';
+      }
+    }
+
+    function checkAIQuiz(btn, answers) {
+      const card = btn.closest('.quiz-card'); if(card.dataset.answered) return;
+      const input = card.querySelector('.subj-input'); const val = normalizeString(input.value);
+      if(!val) return alert("정답을 입력하세요!");
+      
+      const isCorrect = answers.some(a => normalizeString(a) === val);
+      const fb = card.querySelector('.feedback');
+      
+      if(isCorrect) {
+        playSound('correct'); fb.style.color = 'var(--success)'; fb.innerText = '✅ 정답입니다!'; input.style.borderColor = 'var(--success)'; input.style.backgroundColor = '#ecfdf5'; aiQuizState.correct++;
+      } else {
+        playSound('wrong'); fb.style.color = 'var(--warning)'; fb.innerText = '❌ 틀렸습니다. 정답: ' + answers.join(' 또는 '); input.style.borderColor = 'var(--warning)'; input.style.backgroundColor = '#fef2f2';
+      }
+      
+      fb.style.display = 'block'; input.disabled = true; btn.disabled = true; card.dataset.answered = 'true';
+      aiQuizState.answered++;
+      
+      if(aiQuizState.answered === aiQuizState.total) {
+        document.getElementById('final-finish-btn').style.display = 'block';
+      }
+    }
+
+    function finishAll() {
+      state.stage = 5; saveState();
+      playSound('tada'); for(let i=0; i<3; i++) setTimeout(createConfetti, i*500);
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById('stage-done').classList.add('active');
+      document.getElementById('final-score-txt').innerText = "최종 실전 점수: " + state.advScore + "점 / 100점"; updateNav();
+    }
   </script>
 </body>
 </html>

@@ -95,31 +95,25 @@
         </div>
 
         <div class="card">
-          <h2 style="color: var(--text); margin-top: 0; margin-bottom: 25px;">📅 이번 주 학습 일정 (금~일)</h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h2 style="color: var(--text); margin: 0;">📅 2026년 6월 학습 달력</h2>
+            <div style="font-size: 14px; color: var(--subtext); display: flex; gap: 15px;">
+              <span>🟢 완료 (O)</span>
+              <span>🟡 진행 중 (△)</span>
+              <span>🔴 미완료 (X)</span>
+            </div>
+          </div>
           
-          <a href="days/2026-06-12/math_char_expr_1.html" class="day-block">
-            <div class="day-info">
-              <div class="day-title">1일차: 곱셈, 나눗셈 기호 생략</div>
-              <div class="day-subtitle">수학 - 문자와 식 | 2026.06.12 (금)</div>
-            </div>
-            <div class="status-badge status-pending" id="status-1">미완료</div>
-          </a>
-
-          <a href="days/2026-06-13/math_char_expr_2.html" class="day-block">
-            <div class="day-info">
-              <div class="day-title">2일차: 대입과 식의 값</div>
-              <div class="day-subtitle">수학 - 문자와 식 | 2026.06.13 (토)</div>
-            </div>
-            <div class="status-badge status-pending" id="status-2">미완료</div>
-          </a>
-
-          <a href="days/2026-06-14/math_char_expr_3.html" class="day-block">
-            <div class="day-info">
-              <div class="day-title">3일차: 일차식의 계산</div>
-              <div class="day-subtitle">수학 - 문자와 식 | 2026.06.14 (일)</div>
-            </div>
-            <div class="status-badge status-pending" id="status-3">미완료</div>
-          </a>
+          <div class="calendar-grid" id="calendar">
+            <div class="cal-header">일</div>
+            <div class="cal-header">월</div>
+            <div class="cal-header">화</div>
+            <div class="cal-header">수</div>
+            <div class="cal-header">목</div>
+            <div class="cal-header">금</div>
+            <div class="cal-header">토</div>
+            <!-- 달력 날짜가 JS로 생성됩니다 -->
+          </div>
         </div>
       </div>
     </main>
@@ -137,32 +131,162 @@
     </aside>
   </div>
 
+  <style>
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+    }
+    .cal-header {
+      text-align: center;
+      font-weight: bold;
+      color: var(--subtext);
+      padding: 10px 0;
+    }
+    .cal-day {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      min-height: 100px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .cal-day:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(99,102,241,0.1);
+    }
+    .cal-date {
+      font-weight: bold;
+      margin-bottom: auto;
+    }
+    .cal-status {
+      font-size: 24px;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .status-O { color: #10B981; } /* Green */
+    .status-Triangle { color: #F59E0B; } /* Yellow */
+    .status-X { color: #EF4444; } /* Red */
+    .cal-day.disabled {
+      background: transparent;
+      border: none;
+      cursor: default;
+    }
+    .cal-day.disabled:hover { box-shadow: none; border: none; }
+  </style>
+
   <script>
     const API_KEY = atob("QVEuQWI4Uk42S19fVkhfUnhQb2hhV3RSb193dFl6eXRaS0x3ZnI3a2Q0NFJMWmVzTFNOdWc=");
 
-    function checkStatus(dateKey, unitKey, badgeId) {
-      const saved = localStorage.getItem('progress_' + dateKey + '_' + unitKey);
-      if(saved) {
-        const state = JSON.parse(saved);
-        if(state.stage === 4) {
-          const badge = document.getElementById(badgeId);
-          badge.className = 'status-badge status-done';
-          badge.innerText = '✅ 완료';
-          return 1;
+    function getStatus(dateStr) {
+      // 기존 하위호환 및 새로운 키 체크
+      let status = "X";
+      let reason = "시작하지 않음";
+
+      // 6월 12~14일은 임시 하위호환
+      let legacyKey = "";
+      if (dateStr === "2026-06-12") legacyKey = "progress_2026.06.12 (금)_math_1";
+      if (dateStr === "2026-06-13") legacyKey = "progress_2026.06.13 (토)_math_2";
+      if (dateStr === "2026-06-14") legacyKey = "progress_2026.06.14 (일)_math_3";
+
+      if (legacyKey && localStorage.getItem(legacyKey)) {
+        const legacyData = JSON.parse(localStorage.getItem(legacyKey));
+        if (legacyData.stage === 4) {
+          status = "O"; reason = "모든 학습 완료";
+        } else {
+          status = "Triangle"; reason = `학습 진행 중 (스테이지 ${legacyData.stage})`;
         }
       }
-      return 0;
+
+      // 새로운 통합 상태 데이터가 있으면 덮어쓰기
+      const newSaved = localStorage.getItem("status_" + dateStr);
+      if (newSaved) {
+        const newData = JSON.parse(newSaved);
+        status = newData.status;
+        reason = newData.reason;
+      }
+
+      // 오늘보다 이전인데 아무것도 안했으면 X
+      const today = new Date('2026-06-16');
+      const targetDate = new Date(dateStr);
+      if (targetDate < today && status === "X") {
+        reason = "결석 / 미완료";
+      }
+
+      return { status, reason };
     }
 
-    function refreshDashboard() {
-      let count = 0;
-      count += checkStatus("2026.06.12 (금)", "math_1", "status-1");
-      count += checkStatus("2026.06.13 (토)", "math_2", "status-2");
-      count += checkStatus("2026.06.14 (일)", "math_3", "status-3");
-      document.getElementById('completed-count').innerText = count + '/3';
+    function renderCalendar() {
+      const cal = document.getElementById('calendar');
+      const daysInMonth = 30; // 6월은 30일까지
+      const firstDayOffset = 1; // 6월 1일은 월요일 (일=0, 월=1)
+
+      // 빈 칸 채우기
+      for(let i=0; i<firstDayOffset; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'cal-day disabled';
+        cal.appendChild(empty);
+      }
+
+      let completedCount = 0;
+
+      for(let day=1; day<=daysInMonth; day++) {
+        const dateStr = `2026-06-${String(day).padStart(2, '0')}`;
+        const data = getStatus(dateStr);
+        
+        const cell = document.createElement('div');
+        cell.className = 'cal-day';
+        cell.title = data.reason; // 툴팁으로 상세 사유 표시
+        
+        let statusHtml = '';
+        if (data.status === 'O') {
+          statusHtml = '<div class="cal-status status-O">🟢</div>';
+          completedCount++;
+        } else if (data.status === 'Triangle') {
+          statusHtml = '<div class="cal-status status-Triangle">🟡</div>';
+        } else if (data.status === 'X') {
+          const today = new Date('2026-06-16');
+          const targetDate = new Date(dateStr);
+          if (targetDate < today) {
+            statusHtml = '<div class="cal-status status-X">🔴</div>';
+          }
+        }
+
+        cell.innerHTML = `
+          <div class="cal-date">${day}</div>
+          ${statusHtml}
+        `;
+
+        // 요일 클래스 (일요일 빨간색, 토요일 파란색)
+        const weekDay = (day + firstDayOffset - 1) % 7;
+        if (weekDay === 0) cell.querySelector('.cal-date').style.color = '#EF4444';
+        if (weekDay === 6) cell.querySelector('.cal-date').style.color = '#3B82F6';
+
+        // 클릭 이벤트
+        cell.onclick = () => {
+          if (data.status === 'Triangle') {
+            alert(`[${day}일 학습 미완료 사유]\n\n${data.reason}`);
+          }
+          // 학습 페이지로 이동 (기존 페이지가 있는 날짜만 연결)
+          if (day === 12) location.href = "days/2026-06-12/math_char_expr_1.html";
+          else if (day === 13) location.href = "days/2026-06-13/math_char_expr_2.html";
+          else if (day === 14) location.href = "days/2026-06-14/math_char_expr_3.html";
+          else {
+            alert(`${day}일자 학습 페이지를 불러올 수 없습니다. 원장님이 준비 중입니다.`);
+          }
+        };
+
+        cal.appendChild(cell);
+      }
+
+      document.getElementById('completed-count').innerText = `${completedCount}일`;
     }
 
-    refreshDashboard();
+    renderCalendar();
 
     function exportData() {
       const data = {};
