@@ -1,0 +1,643 @@
+import os
+import json
+import codecs
+
+data_js_path = r'C:\Users\LG\Desktop\안티그래비티\자녀 문제집\중1\builder\data.js'
+with codecs.open(data_js_path, 'r', 'utf-8') as f:
+    js_content = f.read()
+
+# Instead of parsing the massive JS, let's just use the python dicts directly.
+day4_data = {
+    'title': '4일차: 일차방정식과 그 해',
+    'date': '2026.06.15 (월)',
+    'id': 'math_4',
+    'lecture': {
+        'title': '참이 되게 하는 마법의 숫자',
+        'intro': '방정식은 미지수 $x$의 값에 따라 참이 되기도 하고 거짓이 되기도 하는 등식을 말해! 이 방정식을 참이 되게 하는 $x$의 값을 \'해\' 또는 \'근\'이라고 부른단다.',
+        'rules': [
+            '등식: 등호($=$)를 사용하여 두 수나 식이 같음을 나타낸 식',
+            '방정식: 미지수 $x$의 값에 따라 참이 되기도 하고 거짓이 되기도 하는 등식',
+            '항등식: 미지수 $x$에 어떤 값을 대입해도 항상 참이 되는 등식',
+            '방정식의 해: 방정식을 참이 되게 하는 미지수의 값'
+        ],
+        'steps': [
+            {'text': '다음 식이 방정식인지 항등식인지 구분해보자: $2x + 1 = 5$', 'math': '$2x + 1 = 5$'},
+            {'text': '① $x=1$ 대입: $2(1)+1 = 3 \\\\neq 5$ (거짓)', 'math': '거짓'},
+            {'text': '② $x=2$ 대입: $2(2)+1 = 5$ (참!)', 'math': '참'},
+            {'text': '③ 값에 따라 참/거짓이 바뀌므로 이것은 **방정식**이고, 해는 $x=2$이다.', 'math': '해: $x=2$'}
+        ]
+    },
+    'basic': [
+        {'type': 'choice', 'q': '다음 중 등식인 것은?', 'options': ['$2x+3$', '$5 > 3$', '$x-1 = 4$', '$3x-2 \\\\le 5$'], 'correct': 2},
+        {'type': 'choice', 'q': '다음 중 방정식인 것은?', 'options': ['$2+3=5$', '$x+x=2x$', '$3x-1=8$', '$4(x-1)=4x-4$'], 'correct': 2},
+        {'type': 'choice', 'q': '다음 중 항상 참이 되는 항등식은?', 'options': ['$2x = 6$', '$x+2 = 2+x$', '$x-1 = 0$', '$3x = x+2$'], 'correct': 1},
+        {'type': 'subjective', 'q': '$x=3$이 해가 되는 방정식은? (번호만 입력)\\n1) $x+2=6$  2) $2x=6$  3) $x-1=3$', 'a': ['2']},
+        {'type': 'subjective', 'q': '$2x - 4 = 0$ 의 해를 구하시오.', 'a': ['2']},
+        {'type': 'subjective', 'q': '어떤 수 $x$의 3배에서 2를 빼면 10이다. 이를 등식으로 나타내시오. (기호 생략)', 'a': ['3x-2=10']},
+        {'type': 'subjective', 'q': '가로가 $x$, 세로가 4인 직사각형의 둘레가 20이다. 이를 등식으로 나타내시오.', 'a': ['2(x+4)=20', '2x+8=20']},
+        {'type': 'choice', 'q': '다음 방정식 중 해가 $x=-1$ 인 것은?', 'options': ['$x+1=2$', '$2x-1=-3$', '$-x+2=1$', '$3x=3$'], 'correct': 1},
+        {'type': 'choice', 'q': '등식의 성질 중 옳지 않은 것은? ($a=b$일 때)', 'options': ['$a+c=b+c$', '$a-c=b-c$', '$ac=bc$', '$\\\\dfrac{a}{c}=\\\\dfrac{b}{c}$ (단, $c$는 모든 수)'], 'correct': 3},
+        {'type': 'subjective', 'q': '방정식 $x-3=5$ 의 양변에 어떤 수를 더해야 $x$의 값을 구할 수 있을까?', 'a': ['3']}
+    ],
+    'advanced': [
+        {'type': 'choice', 'q': '다음 중 항등식인 것을 모두 고르면? (개수만 적으시오)\\n(가) $2x-x=x$  (나) $3(x-1)=3x-3$  (다) $x+2=5$', 'options': ['1개', '2개', '3개', '0개'], 'correct': 1},
+        {'type': 'subjective', 'q': '등식 $ax+b = 3x-2$ 가 항등식이 되기 위한 상수 $a$의 값은?', 'a': ['3']},
+        {'type': 'subjective', 'q': '등식 $ax+b = 3x-2$ 가 항등식이 되기 위한 상수 $b$의 값은?', 'a': ['-2']},
+        {'type': 'subjective', 'q': '방정식 $\\\\dfrac{x}{2} - 1 = 3$ 의 해를 구하시오.', 'a': ['8']},
+        {'type': 'choice', 'q': '$2x-a = 4$ 의 해가 $x=3$ 일 때, 상수 $a$의 값은?', 'options': ['1', '2', '3', '4'], 'correct': 1}
+    ]
+}
+
+day5_data = {
+    'title': '5일차: 일차방정식의 풀이',
+    'date': '2026.06.16 (화)',
+    'id': 'math_5',
+    'lecture': {
+        'title': '좌변엔 문자, 우변엔 숫자! 이항',
+        'intro': '방정식을 풀 때는 $x$가 있는 항은 모두 왼쪽(좌변)으로, 숫자는 모두 오른쪽(우변)으로 옮겨야 해. 부호를 바꾸면서 이사 가는 것을 \'이항\'이라고 한단다!',
+        'rules': [
+            '이항: 등호($=$)를 넘어갈 때는 반드시 부호를 바꾼다! ($+$는 $-$, $-$는 $+$)',
+            '일차방정식 풀이 순서: ① 괄호가 있으면 분배법칙으로 푼다.',
+            '② $x$항은 좌변으로, 상수항은 우변으로 이항한다.',
+            '③ 양변을 정리하여 $ax=b$ 형태로 만든 후, 양변을 $a$로 나눈다.'
+        ],
+        'steps': [
+            {'text': '다음 일차방정식을 풀어보자: $3x - 4 = x + 6$', 'math': '$3x - 4 = x + 6$'},
+            {'text': '① $x$는 좌변으로, $-4$는 우변으로 이항 (부호 반대!)', 'math': '$3x - x = 6 + 4$'},
+            {'text': '② 양변을 정리한다.', 'math': '$2x = 10$'},
+            {'text': '③ 양변을 2로 나눈다.', 'math': '$x = 5$'}
+        ]
+    },
+    'basic': [
+        {'type': 'subjective', 'q': '$x - 5 = 2$ 에서 $-5$를 이항한 식을 쓰시오. (예: x=2+5)', 'a': ['x=2+5', 'x=5+2']},
+        {'type': 'subjective', 'q': '$2x = x + 4$ 에서 우변의 $x$를 이항한 식을 쓰시오.', 'a': ['2x-x=4', '-x+2x=4']},
+        {'type': 'subjective', 'q': '방정식 $3x = 12$ 의 해를 구하시오.', 'a': ['4']},
+        {'type': 'subjective', 'q': '방정식 $-2x = 10$ 의 해를 구하시오.', 'a': ['-5']},
+        {'type': 'subjective', 'q': '방정식 $x + 3 = 7$ 의 해를 구하시오.', 'a': ['4']},
+        {'type': 'subjective', 'q': '방정식 $2x - 1 = 5$ 의 해를 구하시오.', 'a': ['3']},
+        {'type': 'choice', 'q': '$4x - 2 = 2x + 6$ 에서 이항을 바르게 한 것은?', 'options': ['$4x+2x = 6-2$', '$4x-2x = 6+2$', '$4x-2x = 6-2$', '$4x+2x = 6+2$'], 'correct': 1},
+        {'type': 'subjective', 'q': '방정식 $5x = 2x + 9$ 의 해를 구하시오.', 'a': ['3']},
+        {'type': 'choice', 'q': '다음 방정식 중 해가 가장 큰 것은?', 'options': ['$2x=4$', '$x+1=5$', '$3x-2=10$', '$5-x=2$'], 'correct': 2},
+        {'type': 'subjective', 'q': '방정식 $2(x-1) = x+3$ 의 해를 구하시오.', 'a': ['5']}
+    ],
+    'advanced': [
+        {'type': 'subjective', 'q': '방정식 $3(2x-1) = 2x+5$ 의 해를 구하시오.', 'a': ['2']},
+        {'type': 'subjective', 'q': '비례식 $(x+1) : 2 = (2x-1) : 3$ 의 해를 구하시오.', 'a': ['5']},
+        {'type': 'choice', 'q': '방정식 $0.2x - 0.3 = 0.5x + 0.6$ 의 해는?', 'options': ['-1', '-2', '-3', '-4'], 'correct': 2},
+        {'type': 'choice', 'q': '방정식 $\\\\dfrac{x-1}{2} = \\\\dfrac{x+2}{3}$ 의 해는?', 'options': ['4', '5', '6', '7'], 'correct': 3},
+        {'type': 'subjective', 'q': '방정식 $3x-a = 2x+4$ 의 해가 $x=5$ 일 때, 상수 $a$의 값을 구하시오.', 'a': ['1']}
+    ]
+}
+
+def generate_html(day_data, next_path):
+    basic_html = ""
+    for idx, q in enumerate(day_data['basic']):
+        if q['type'] == 'subjective':
+            basic_html += f'''
+      <div class="card quiz-card" data-qid="{idx}">
+        <div class="question-text"><strong>Q{idx+1}.</strong> {q['q']}</div>
+        <div class="subjective-input">
+          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, {json.dumps(q['a']).replace('"', "'")})">
+          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, {json.dumps(q['a']).replace('"', "'")})">확인</button>
+        </div>
+        <div class="feedback"></div>
+      </div>'''
+        else:
+            opts_html = ""
+            for i, opt in enumerate(q['options']):
+                correct_class = 'correct' if i == q['correct'] else ''
+                opts_html += f'<button class="option {correct_class}" onclick="checkAnswer(this, {str(i == q["correct"]).lower()})">①②③④⑤[{i}] {opt}</button>'
+            opts_html = opts_html.replace('①②③④⑤[0]', '①').replace('①②③④⑤[1]', '②').replace('①②③④⑤[2]', '③').replace('①②③④⑤[3]', '④').replace('①②③④⑤[4]', '⑤')
+            basic_html += f'''
+      <div class="card quiz-card" data-qid="{idx}">
+        <div class="question-text"><strong>Q{idx+1}.</strong> {q['q']}</div>
+        <div class="options">{opts_html}</div>
+        <div class="feedback"></div>
+      </div>'''
+
+    adv_html = ""
+    for idx, q in enumerate(day_data['advanced']):
+        if q['type'] == 'subjective':
+            adv_html += f'''
+      <div class="card quiz-card adv-card" data-qid="adv{idx}">
+        <div class="question-text"><strong>{idx+1}.</strong> {q['q']}</div>
+        <div class="subjective-input">
+          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, {json.dumps(q['a']).replace('"', "'")})">
+          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, {json.dumps(q['a']).replace('"', "'")})">확인</button>
+        </div>
+        <div class="feedback"></div>
+      </div>'''
+        else:
+            opts_html = ""
+            for i, opt in enumerate(q['options']):
+                correct_class = 'correct' if i == q['correct'] else ''
+                opts_html += f'<button class="option {correct_class}" onclick="checkAnswer(this, {str(i == q["correct"]).lower()})">①②③④⑤[{i}] {opt}</button>'
+            opts_html = opts_html.replace('①②③④⑤[0]', '①').replace('①②③④⑤[1]', '②').replace('①②③④⑤[2]', '③').replace('①②③④⑤[3]', '④').replace('①②③④⑤[4]', '⑤')
+            adv_html += f'''
+      <div class="card quiz-card adv-card" data-qid="adv{idx}">
+        <div class="question-text"><strong>{idx+1}.</strong> {q['q']}</div>
+        <div class="options">{opts_html}</div>
+        <div class="feedback"></div>
+      </div>'''
+
+    rules_html = "".join([f"<li>{r}</li>" for r in day_data['lecture']['rules']])
+    steps_html = ""
+    for idx, s in enumerate(day_data['lecture']['steps']):
+        if idx == 0:
+            steps_html += f'<div class="math-block">{s["math"]}</div><p>{s["text"]}</p>'
+        else:
+            steps_html += f'<div id="step-{idx}" class="step-box">{s["text"]} <br><span class="highlight">{s["math"]}</span></div>'
+
+    html_template = f'''<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>스마트 학습서 - {day_data['title']}</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    :root {{
+      --bg: #F0F2F5; --primary: #4F7FFF; --success: #34C759; --warning: #FF9F0A; --danger: #FF3B30;
+      --text: #1C1C1E; --subtext: #6E6E73; --card-bg: #FFFFFF; --border: #E5E5EA;
+    }}
+    * {{ box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; }}
+    body {{ margin: 0; padding: 0; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.6; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }}
+    
+    .header {{ background: #fff; padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; z-index: 10; }}
+    .header h1 {{ margin: 0; font-size: 1.5rem; color: var(--primary); }}
+    
+    .desktop-layout {{ display: flex; flex: 1; overflow: hidden; }}
+    
+    /* Left Sidebar */
+    .sidebar-nav {{ width: 250px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; }}
+    .progress-nav {{ display: flex; flex-direction: column; padding: 20px; gap: 15px; }}
+    .nav-btn {{ background: #f8f9fa; border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: left; font-weight: bold; color: var(--subtext); cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }}
+    .nav-btn:hover {{ background: #eef2ff; border-color: #c7d2fe; }}
+    .nav-btn.active {{ background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 15px rgba(79, 127, 255, 0.3); }}
+    .nav-btn.locked {{ opacity: 0.5; cursor: not-allowed; }}
+    .nav-btn.locked::after {{ content: '🔒'; position: absolute; right: 15px; top: 15px; }}
+    .nav-btn.completed::after {{ content: '✅'; position: absolute; right: 15px; top: 15px; }}
+    
+    /* Main Content */
+    .main-content {{ flex: 1; overflow-y: auto; padding: 30px; position: relative; scroll-behavior: smooth; }}
+    .section {{ display: none; max-width: 800px; margin: 0 auto; animation: fadeIn 0.5s ease-out; }}
+    .section.active {{ display: block; }}
+    
+    /* Right Sidebar (Chatbot) */
+    .sidebar-chat {{ width: 350px; background: #fff; border-left: 1px solid var(--border); display: flex; flex-direction: column; }}
+    .chat-header {{ padding: 20px; border-bottom: 1px solid var(--border); background: #f8f9fa; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; }}
+    .chat-box {{ flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #fafafa; }}
+    .msg {{ max-width: 85%; padding: 12px 16px; border-radius: 15px; font-size: 0.95rem; line-height: 1.5; }}
+    .msg.bot {{ background: #fff; border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }}
+    .msg.user {{ background: var(--primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 2px 5px rgba(79,127,255,0.2); }}
+    .msg.loading {{ color: #999; font-style: italic; background: transparent; border: none; box-shadow: none; }}
+    .chat-input-area {{ padding: 15px; border-top: 1px solid var(--border); background: #fff; display: flex; gap: 10px; }}
+    .chat-input-area input {{ flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 20px; outline: none; transition: border-color 0.2s; }}
+    .chat-input-area input:focus {{ border-color: var(--primary); }}
+    .chat-input-area button {{ background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(79,127,255,0.3); transition: transform 0.1s; }}
+    .chat-input-area button:active {{ transform: scale(0.95); }}
+    
+    /* Cards and Typography */
+    .card {{ background: var(--card-bg); border-radius: 20px; padding: 30px; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.02); }}
+    h2 {{ color: var(--primary); font-size: 1.8rem; margin-top: 0; display: flex; align-items: center; gap: 10px; }}
+    .subtitle {{ color: var(--subtext); font-size: 1.1rem; margin-bottom: 25px; font-weight: 400; }}
+    
+    /* Lecture Styles */
+    .rule-box {{ background: #f8f9fa; border-left: 4px solid var(--primary); padding: 20px; border-radius: 0 12px 12px 0; margin-bottom: 30px; }}
+    .rule-box ul {{ margin: 0; padding-left: 20px; }}
+    .rule-box li {{ margin-bottom: 10px; color: #333; }}
+    .math-block {{ font-size: 1.5rem; text-align: center; padding: 20px; background: #fff; border: 1px solid var(--border); border-radius: 12px; margin: 20px 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }}
+    .step-box {{ background: #fff; padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; transform: translateX(-20px); opacity: 0; transition: all 0.5s; }}
+    .step-box.visible {{ transform: translateX(0); opacity: 1; }}
+    .step-box .highlight {{ color: var(--primary); font-weight: bold; font-size: 1.2rem; display: block; margin-top: 5px; }}
+    
+    /* Quiz Styles */
+    .quiz-card {{ border-left: 4px solid transparent; transition: all 0.3s; }}
+    .quiz-card.correct {{ border-left-color: var(--success); background: #f0fdf4; }}
+    .quiz-card.wrong {{ border-left-color: var(--danger); background: #fef2f2; }}
+    .question-text {{ font-size: 1.2rem; margin-bottom: 20px; font-weight: bold; }}
+    .options {{ display: flex; flex-direction: column; gap: 10px; }}
+    .option {{ background: #fff; border: 1px solid var(--border); padding: 15px 20px; border-radius: 12px; text-align: left; cursor: pointer; font-size: 1.1rem; transition: all 0.2s; color: var(--text); }}
+    .option:hover:not(:disabled) {{ background: #f8f9fa; border-color: #c7d2fe; }}
+    .option.selected.correct {{ background: var(--success); color: white; border-color: var(--success); }}
+    .option.selected.wrong {{ background: var(--danger); color: white; border-color: var(--danger); }}
+    .option:disabled {{ cursor: default; opacity: 0.8; }}
+    .subjective-input {{ display: flex; gap: 10px; margin-top: 15px; }}
+    .subj-input {{ flex: 1; padding: 15px; border: 1px solid var(--border); border-radius: 12px; font-size: 1.1rem; outline: none; transition: border-color 0.2s; }}
+    .subj-input:focus {{ border-color: var(--primary); }}
+    .feedback {{ margin-top: 15px; font-weight: bold; min-height: 24px; }}
+    .feedback.correct {{ color: var(--success); }}
+    .feedback.wrong {{ color: var(--danger); }}
+    
+    /* Buttons */
+    .btn {{ background: var(--primary); color: #fff; border: none; padding: 15px 30px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; box-shadow: 0 4px 15px rgba(79, 127, 255, 0.3); }}
+    .btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79, 127, 255, 0.4); }}
+    .btn-secondary {{ background: #fff; color: var(--primary); border: 2px solid var(--primary); box-shadow: none; }}
+    .btn-secondary:hover {{ background: #f8f9fa; box-shadow: none; }}
+    
+    .action-area {{ margin-top: 30px; text-align: center; }}
+    
+    /* Confetti */
+    .confetti {{ position: absolute; width: 10px; height: 10px; background: red; animation: fall 3s linear forwards; z-index: 1000; }}
+    
+    @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(20px); }} to {{ opacity: 1; transform: translateY(0); }} }}
+    @keyframes fall {{ 0% {{ transform: translateY(-100px) rotate(0deg); opacity: 1; }} 100% {{ transform: translateY(100vh) rotate(720deg); opacity: 0; }} }}
+    
+    /* Progress Bar */
+    .progress-container {{ background: #e9ecef; border-radius: 10px; height: 10px; margin-bottom: 20px; overflow: hidden; }}
+    .progress-bar {{ background: var(--primary); height: 100%; width: 0%; transition: width 0.5s ease; }}
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1>🚀 안티그래비티 스마트 학습서</h1>
+    <div style="font-weight: bold; color: var(--subtext);">{day_data['date']}</div>
+  </header>
+
+  <div class="desktop-layout">
+    <!-- Left Navigation -->
+    <nav class="sidebar-nav">
+      <div class="progress-nav">
+        <div id="nav-0" class="nav-btn active" onclick="navTo(0)">📚 개념 학습</div>
+        <div id="nav-1" class="nav-btn locked" onclick="navTo(1)">📝 기초 다지기</div>
+        <div id="nav-2" class="nav-btn locked" onclick="navTo(2)">🔥 실전 문제</div>
+        <div id="nav-3" class="nav-btn locked" onclick="navTo(3)">🏆 결과 확인</div>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="main-scroll">
+      
+      <!-- Stage 0: Lecture -->
+      <div id="stage-0" class="section active">
+        <div class="card">
+          <h2>📚 {day_data['lecture']['title']}</h2>
+          <p class="subtitle">{day_data['lecture']['intro']}</p>
+          
+          <div class="rule-box">
+            <ul>{rules_html}</ul>
+          </div>
+          
+          <h3>💡 예제로 알아보기</h3>
+          {steps_html}
+          
+          <div class="action-area">
+            <button class="btn" onclick="nextStage(1)">개념 다 익혔어요! 기초 풀러가기 👉</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 1: Basic Quiz -->
+      <div id="stage-1" class="section">
+        <div class="card" style="margin-bottom: 30px;">
+          <h2>📝 기초 다지기</h2>
+          <p class="subtitle">개념을 잘 이해했는지 확인해볼까?</p>
+          <div class="progress-container"><div class="progress-bar" id="prog-1"></div></div>
+          <div style="text-align: right; color: var(--subtext); font-weight: bold;" id="score-1">0 / {len(day_data['basic'])} 완료</div>
+        </div>
+        {basic_html}
+        <div class="action-area">
+          <button class="btn" onclick="finishBasic()">기초 완료! 실전으로 넘어가기 🚀</button>
+        </div>
+      </div>
+
+      <!-- Stage 2: Intro to Advanced -->
+      <div id="stage-2" class="section">
+        <div class="card" style="text-align: center; padding: 50px 30px;">
+          <h2>🔥 훌륭해! 기초를 완벽히 마쳤구나!</h2>
+          <p style="font-size: 1.2rem; color: var(--subtext); margin: 30px 0;">이제 진짜 실력을 발휘할 시간이야.<br>실전 문제는 조금 어려울 수 있지만 넌 할 수 있어!</p>
+          <img src="https://cdn-icons-png.flaticon.com/512/4146/4146813.png" width="120" style="margin-bottom: 30px;">
+          <button class="btn" onclick="startAdvanced()">도전! 실전 문제 시작하기 ⚔️</button>
+        </div>
+      </div>
+
+      <!-- Stage 3: Advanced Quiz -->
+      <div id="stage-3" class="section">
+        <div class="card" style="margin-bottom: 30px;">
+          <h2>🔥 실전 문제</h2>
+          <p class="subtitle">집중해서 끝까지 풀어보자!</p>
+          <div class="progress-container"><div class="progress-bar" id="prog-3"></div></div>
+          <div style="text-align: right; color: var(--subtext); font-weight: bold;" id="score-3">0 / {len(day_data['advanced'])} 완료</div>
+        </div>
+        {adv_html}
+        <div class="action-area">
+          <button class="btn" onclick="finishAdvanced()">수고했어! 채점 결과 보기 📊</button>
+        </div>
+      </div>
+
+      <!-- Stage 4: Results -->
+      <div id="stage-done" class="section">
+        <div class="card" style="text-align: center; padding: 50px 30px;">
+          <h2>🎉 오늘의 학습 완료!</h2>
+          <img src="https://cdn-icons-png.flaticon.com/512/3176/3176294.png" width="150" style="margin: 20px 0;">
+          <h1 style="font-size: 3rem; color: var(--primary); margin: 20px 0;" id="final-score-txt">100점</h1>
+          <p style="font-size: 1.2rem; color: var(--subtext);">정말 멋져! 내일도 선생님이랑 같이 재밌게 공부하자!</p>
+          <button class="btn" style="margin-top: 30px;" onclick="location.href='{next_path}'">다음 날짜 학습하러 가기 👉</button>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Right Sidebar Chatbot -->
+    <aside class="sidebar-chat">
+      <div class="chat-header">
+        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" width="30">
+        <span>AI 수학 선생님</span>
+      </div>
+      <div class="chat-box" id="chat-box">
+        <div class="msg bot">안녕! 오늘 배울 내용 중에 모르는 게 있으면 언제든 물어봐! 선생님이 힌트를 줄게 😉</div>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="질문을 입력하세요..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    /* State Management */
+    const DAY_ID = "{day_data['id']}";
+    let state = JSON.parse(localStorage.getItem('edu_state_' + DAY_ID)) || {{ stage: 0, basicScore: 0, advScore: 0, answers: {{}} }};
+    
+    function saveState() {{ localStorage.setItem('edu_state_' + DAY_ID, JSON.stringify(state)); }}
+
+    /* Navigation */
+    function navTo(stageIdx) {{
+      if(document.getElementById('nav-'+stageIdx).classList.contains('locked')) return;
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      
+      let targetId = 'stage-' + stageIdx;
+      if(stageIdx === 4) targetId = 'stage-done';
+      
+      document.getElementById(targetId).classList.add('active');
+      const navBtn = document.getElementById('nav-'+stageIdx);
+      if(navBtn) navBtn.classList.add('active');
+      document.getElementById('main-scroll').scrollTop = 0;
+      
+      if(stageIdx === 0) animateSteps();
+    }}
+
+    function nextStage(nextIdx) {{
+      state.stage = Math.max(state.stage, nextIdx);
+      saveState();
+      updateNav();
+      navTo(nextIdx);
+    }}
+
+    function updateNav() {{
+      for(let i=0; i<=4; i++) {{
+        const btn = document.getElementById('nav-'+i);
+        if(!btn) continue;
+        if(i <= state.stage) {{
+          btn.classList.remove('locked');
+          if(i < state.stage) btn.classList.add('completed');
+        }}
+      }}
+    }}
+
+    /* Animations */
+    function animateSteps() {{
+      const boxes = document.querySelectorAll('.step-box');
+      boxes.forEach(b => b.classList.remove('visible'));
+      boxes.forEach((box, i) => {{
+        setTimeout(() => box.classList.add('visible'), (i+1)*800);
+      }});
+    }}
+
+    function createConfetti() {{
+      for(let i=0; i<50; i++) {{
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.backgroundColor = ['#FF3B30','#34C759','#4F7FFF','#FF9F0A','#AF52DE'][Math.floor(Math.random()*5)];
+        c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+      }}
+    }}
+
+    function playSound(type) {{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      if(type === 'correct') {{
+        osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc.start(); osc.stop(ctx.currentTime + 0.3);
+      }} else if (type === 'wrong') {{
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc.start(); osc.stop(ctx.currentTime + 0.3);
+      }} else if (type === 'tada') {{
+        osc.type = 'square'; osc.frequency.setValueAtTime(400, ctx.currentTime);
+        osc.frequency.setValueAtTime(500, ctx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(600, ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.start(); osc.stop(ctx.currentTime + 0.5);
+      }}
+    }}
+
+    /* Quiz Logic */
+    function checkAnswer(btn, isCorrect) {{
+      const card = btn.closest('.card');
+      const qid = card.dataset.qid;
+      if(state.answers[qid]) return; // Already answered
+      
+      const options = card.querySelectorAll('.option');
+      options.forEach(o => o.disabled = true);
+      
+      if(isCorrect) {{
+        btn.classList.add('selected', 'correct');
+        card.classList.add('correct');
+        card.querySelector('.feedback').innerText = "🎉 정답입니다! 완벽해요!";
+        card.querySelector('.feedback').className = 'feedback correct';
+        playSound('correct');
+      }} else {{
+        btn.classList.add('selected', 'wrong');
+        card.classList.add('wrong');
+        card.querySelector('.feedback').innerText = "❌ 아쉽네요. 다시 한번 개념을 확인해보세요!";
+        card.querySelector('.feedback').className = 'feedback wrong';
+        options.forEach(o => {{ if(o.classList.contains('correct')) o.style.border = '2px solid var(--success)'; }});
+        playSound('wrong');
+      }}
+      state.answers[qid] = isCorrect ? 1 : 0;
+      saveState();
+      updateProgress(card.closest('.section').id);
+    }}
+
+    function checkSubjective(inputEl, correctAnswers) {{
+      const card = inputEl.closest('.card');
+      const qid = card.dataset.qid;
+      if(state.answers[qid]) return;
+      
+      const userVal = inputEl.value.replace(/\s/g, '').toLowerCase();
+      if(!userVal) return;
+      
+      inputEl.disabled = true;
+      card.querySelector('button').disabled = true;
+      
+      let isCorrect = false;
+      correctAnswers.forEach(ans => {{
+        if(userVal === String(ans).replace(/\s/g, '').toLowerCase()) isCorrect = true;
+      }});
+      
+      if(isCorrect) {{
+        card.classList.add('correct');
+        card.querySelector('.feedback').innerText = "🎉 정답입니다! 완벽해요!";
+        card.querySelector('.feedback').className = 'feedback correct';
+        playSound('correct');
+      }} else {{
+        card.classList.add('wrong');
+        card.querySelector('.feedback').innerText = "❌ 오답입니다. 정답: " + correctAnswers.join(' 또는 ');
+        card.querySelector('.feedback').className = 'feedback wrong';
+        playSound('wrong');
+      }}
+      state.answers[qid] = isCorrect ? 1 : 0;
+      saveState();
+      updateProgress(card.closest('.section').id);
+    }}
+
+    function updateProgress(sectionId) {{
+      const section = document.getElementById(sectionId);
+      const cards = section.querySelectorAll('.quiz-card');
+      const total = cards.length;
+      let answered = 0;
+      let correct = 0;
+      
+      cards.forEach(card => {{
+        const qid = card.dataset.qid;
+        if(state.answers[qid] !== undefined) {{
+          answered++;
+          if(state.answers[qid] === 1) correct++;
+        }}
+      }});
+      
+      const stageNum = sectionId === 'stage-1' ? 1 : 3;
+      document.getElementById('prog-'+stageNum).style.width = (answered/total)*100 + '%';
+      document.getElementById('score-'+stageNum).innerText = answered + ' / ' + total + ' 완료';
+      
+      return {{ total, answered, correct }};
+    }}
+
+    function countCorrect(sectionId) {{
+      return updateProgress(sectionId);
+    }}
+
+    function finishBasic() {{
+      const r = countCorrect('stage-1');
+      if(r.answered < r.total) return alert("아직 안 푼 문제가 있어요!");
+      state.basicScore = Math.round((r.correct / r.total) * 100);
+      nextStage(2);
+    }}
+
+    function startAdvanced() {{ nextStage(3); }}
+
+    function finishAdvanced() {{
+      const r = countCorrect('stage-3');
+      if(r.answered < r.total) return alert("아직 안 푼 문제가 있어요!");
+      let score = Math.round((r.correct / r.total) * 100);
+      state.advScore = score; state.stage = 4; saveState();
+      playSound('tada'); for(let i=0; i<3; i++) setTimeout(createConfetti, i*500);
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById('stage-done').classList.add('active');
+      document.getElementById('final-score-txt').innerText = "최종 실전 점수: " + score + "점 / 100점"; updateNav();
+    }}
+
+    /* Chatbot Logic */
+    const API_KEY = atob("QVEuQWI4Uk42S19fVkhfUnhQb2hhV3RSb193dFl6eXRaS0x3ZnI3a2Q0NFJMWmVzTFNOdWc=");
+    let chatHistory = [
+      {{ role: "user", parts: [{{ text: "너는 친절한 중학교 수학 과외 선생님이야. 학생이 모르는 걸 물어보면 절대 정답을 바로 말하지 말고, 힌트만 주고 스스로 풀 수 있도록 유도해. 이모지를 써서 다정하게 말해줘." }}]}},
+      {{ role: "model", parts: [{{ text: "알겠어! 나는 친절한 수학 과외 선생님이야. 정답 대신 힌트로 스스로 깨닫게 도와줄게! 😊 어떤 문제가 헷갈려?" }}]}}
+    ];
+
+    async function sendMessage() {{
+      const inputEl = document.getElementById('chat-input');
+      const text = inputEl.value.trim();
+      if(!text) return;
+      
+      addMessage(text, 'user');
+      inputEl.value = '';
+      
+      chatHistory.push({{ role: "user", parts: [{{ text }}] }});
+      const loadingId = addMessage("입력 중...", "bot loading");
+      const box = document.getElementById('chat-box');
+      box.scrollTop = box.scrollHeight;
+      
+      try {{
+        const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY, {{
+          method: "POST",
+          headers: {{ "Content-Type": "application/json" }},
+          body: JSON.stringify({{ contents: chatHistory }})
+        }});
+        const data = await res.json();
+        
+        document.getElementById(loadingId).remove();
+        
+        if(data.error) {{
+          addMessage("앗, 선생님이 지금 바빠서 대답을 못하겠어. 조금 이따 다시 물어봐줄래? 😭", 'bot');
+        }} else {{
+          const reply = data.candidates[0].content.parts[0].text;
+          addMessage(reply, 'bot');
+          chatHistory.push({{ role: "model", parts: [{{ text: reply }}] }});
+          
+          // Re-render math in chat box
+          renderMathInElement(box, {{ delimiters: [{{left: '$$', right: '$$', display: true}}, {{left: '$', right: '$', display: false}}] }});
+        }}
+      }} catch(e) {{
+        document.getElementById(loadingId).remove();
+        addMessage("네트워크 오류가 발생했어. 연결을 확인해줘!", 'bot');
+      }}
+      box.scrollTop = box.scrollHeight;
+    }}
+
+    function addMessage(text, type) {{
+      const box = document.getElementById('chat-box');
+      const div = document.createElement('div');
+      div.className = 'msg ' + type;
+      // Very simple bold and markdown parsing
+      let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      formatted = formatted.replace(/\n/g, '<br>');
+      div.innerHTML = formatted;
+      const id = 'msg-' + Date.now();
+      div.id = id;
+      box.appendChild(div);
+      return id;
+    }}
+
+    document.addEventListener("DOMContentLoaded", function() {{
+      renderMathInElement(document.body, {{ delimiters: [{{left: '$$', right: '$$', display: true}}, {{left: '$', right: '$', display: false}}] }});
+      if(state.stage === 4) {{ document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active')); document.getElementById('stage-done').classList.add('active'); document.getElementById('final-score-txt').innerText = "최종 실전 점수: " + state.advScore + "점 / 100점"; }} 
+      else {{ navTo(state.stage); }}
+    }});
+  </script>
+</body>
+</html>'''
+    return html_template
+
+# Generate files
+html4 = generate_html(day4_data, '../../days/2026-06-16/math_char_expr_5.html')
+html5 = generate_html(day5_data, '../../index.html')
+
+with codecs.open(r'C:\Users\LG\Desktop\안티그래비티\자녀 문제집\중1\days\2026-06-15\math_char_expr_4.html', 'w', 'utf-8') as f:
+    f.write(html4)
+
+with codecs.open(r'C:\Users\LG\Desktop\안티그래비티\자녀 문제집\중1\days\2026-06-16\math_char_expr_5.html', 'w', 'utf-8') as f:
+    f.write(html5)
+
+print('Build success!')
