@@ -290,6 +290,37 @@
       return { status, reason };
     }
 
+    function goToDay(day) {
+      const role = localStorage.getItem('userRole');
+      if(role === 'dad') return; // 아빠는 달력 터치 무시
+
+      let title = ""; let qCount = 15; let href = "";
+      if (day >= 13 && day <= 15) {
+        title = "문자와 식 (실전)"; qCount = 15; href = `days/2026-06-${day}/math_char_expr_${day-12}.html`;
+      } else if (day === 12) {
+        title = "문자와 식 (기호 생략 피드백 테스트)"; qCount = 10; href = `days/2026-06-12/math_char_expr_0.html`;
+      } else {
+        return alert(`${day}일자 학습 페이지를 불러올 수 없습니다. 원장님이 준비 중입니다.`);
+      }
+
+      const modalHtml = `
+        <div id="preview-modal" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center;">
+          <div style="background:white; padding:40px; border-radius:24px; text-align:center; max-width:400px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+            <h1 style="margin-top:0; color:var(--primary);">📅 6월 ${day}일 학습</h1>
+            <p style="color:#666; font-size:1.1rem; line-height:1.6; margin-bottom:30px;">
+              오늘은 <b>[${title}]</b>을 공부합니다!<br><br>
+              총 <b>${qCount}문제</b>가 준비되어 있습니다.<br>최선을 다해 풀어봅시다. 화이팅!
+            </p>
+            <div style="display:flex; gap:10px;">
+              <button onclick="document.getElementById('preview-modal').remove()" style="flex:1; padding:15px; border-radius:12px; border:2px solid var(--border); background:white; font-size:1.1rem; font-weight:bold; cursor:pointer;">나중에</button>
+              <button onclick="location.href='${href}'" style="flex:2; padding:15px; border-radius:12px; border:none; background:var(--primary); color:white; font-size:1.1rem; font-weight:bold; cursor:pointer;">🚀 학습 시작하기</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+    
     function renderCalendar() {
       const cal = document.getElementById('calendar');
       const daysInMonth = 30; // 6월은 30일까지
@@ -344,13 +375,7 @@
           if (data.status === 'Triangle') {
             alert(`[${day}일 학습 미완료 사유]\n\n${data.reason}`);
           }
-          if (day === 11) location.href = "days/2026-06-11/math_char_expr_0.html";
-          else if (day === 12) location.href = "days/2026-06-12/math_char_expr_1.html";
-          else if (day === 13) location.href = "days/2026-06-13/math_char_expr_2.html";
-          else if (day === 14) location.href = "days/2026-06-14/math_char_expr_3.html";
-          else {
-            alert(`${day}일자 학습 페이지를 불러올 수 없습니다. 원장님이 준비 중입니다.`);
-          }
+          goToDay(day);
         };
 
         cal.appendChild(cell);
@@ -384,12 +409,7 @@
     function goRecommend() {
       const d = document.getElementById('recommend-day').dataset.day;
       if(!d) return;
-      const day = parseInt(d);
-      if (day === 12) location.href = "days/2026-06-12/math_char_expr_0.html";
-      else if (day === 13) location.href = "days/2026-06-13/math_char_expr_1.html";
-      else if (day === 14) location.href = "days/2026-06-14/math_char_expr_2.html";
-      else if (day === 15) location.href = "days/2026-06-15/math_char_expr_3.html";
-      else alert(`${day}일자 학습 페이지를 불러올 수 없습니다. 원장님이 준비 중입니다.`);
+      goToDay(parseInt(d));
     }
 
     
