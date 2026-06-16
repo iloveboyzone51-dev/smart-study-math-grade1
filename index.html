@@ -295,10 +295,12 @@
       if(role === 'dad') return; // 아빠는 달력 터치 무시
 
       let title = ""; let qCount = 15; let href = "";
-      if (day >= 13 && day <= 15) {
+      if (day >= 13 && day <= 14) {
         title = "문자와 식 (실전)"; qCount = 15; href = `days/2026-06-${day}/math_char_expr_${day-12}.html`;
+      } else if (day === 15) {
+        title = "전과목 종합 모의고사 (Day 4)"; qCount = 60; href = `days/2026-06-15/math_char_expr_4.html`;
       } else if (day === 16) {
-        title = "일차방정식의 풀이"; qCount = 15; href = `days/2026-06-16/math_char_expr_5.html`;
+        title = "전과목 종합 모의고사 (Day 5)"; qCount = 60; href = `days/2026-06-16/math_char_expr_5.html`;
       } else if (day === 12) {
         title = "문자와 식 (기호 생략 피드백 테스트)"; qCount = 10; href = `days/2026-06-12/math_char_expr_0.html`;
       } else {
