@@ -3,586 +3,753 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>스마트 학습서 - 5일차: 일차방정식의 풀이</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>스마트 학습서 - Day 5 (60문제 종합)</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <style>
-    :root {
-      --bg: #F0F2F5; --primary: #4F7FFF; --success: #34C759; --warning: #FF9F0A; --danger: #FF3B30;
-      --text: #1C1C1E; --subtext: #6E6E73; --card-bg: #FFFFFF; --border: #E5E5EA;
-    }
-    * { box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; }
-    body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.6; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-    
-    .header { background: #fff; padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-    .header h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
-    
-    .desktop-layout { display: flex; flex: 1; overflow: hidden; }
-    
-    /* Left Sidebar */
-    .sidebar-nav { width: 250px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-    .progress-nav { display: flex; flex-direction: column; padding: 20px; gap: 15px; }
-    .nav-btn { background: #f8f9fa; border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: left; font-weight: bold; color: var(--subtext); cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
-    .nav-btn:hover { background: #eef2ff; border-color: #c7d2fe; }
-    .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 15px rgba(79, 127, 255, 0.3); }
-    .nav-btn.locked { opacity: 0.5; cursor: not-allowed; }
-    .nav-btn.locked::after { content: '🔒'; position: absolute; right: 15px; top: 15px; }
-    .nav-btn.completed::after { content: '✅'; position: absolute; right: 15px; top: 15px; }
-    
-    /* Main Content */
-    .main-content { flex: 1; overflow-y: auto; padding: 30px; position: relative; scroll-behavior: smooth; }
-    .section { display: none; max-width: 800px; margin: 0 auto; animation: fadeIn 0.5s ease-out; }
-    .section.active { display: block; }
-    
-    /* Right Sidebar (Chatbot) */
-    .sidebar-chat { width: 350px; background: #fff; border-left: 1px solid var(--border); display: flex; flex-direction: column; }
-    .chat-header { padding: 20px; border-bottom: 1px solid var(--border); background: #f8f9fa; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-    .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #fafafa; }
-    .msg { max-width: 85%; padding: 12px 16px; border-radius: 15px; font-size: 0.95rem; line-height: 1.5; }
-    .msg.bot { background: #fff; border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-    .msg.user { background: var(--primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 2px 5px rgba(79,127,255,0.2); }
-    .msg.loading { color: #999; font-style: italic; background: transparent; border: none; box-shadow: none; }
-    .chat-input-area { padding: 15px; border-top: 1px solid var(--border); background: #fff; display: flex; gap: 10px; }
-    .chat-input-area input { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 20px; outline: none; transition: border-color 0.2s; }
-    .chat-input-area input:focus { border-color: var(--primary); }
-    .chat-input-area button { background: var(--primary); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(79,127,255,0.3); transition: transform 0.1s; }
-    .chat-input-area button:active { transform: scale(0.95); }
-    
-    /* Cards and Typography */
-    .card { background: var(--card-bg); border-radius: 20px; padding: 30px; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.02); }
-    h2 { color: var(--primary); font-size: 1.8rem; margin-top: 0; display: flex; align-items: center; gap: 10px; }
-    .subtitle { color: var(--subtext); font-size: 1.1rem; margin-bottom: 25px; font-weight: 400; }
-    
-    /* Lecture Styles */
-    .rule-box { background: #f8f9fa; border-left: 4px solid var(--primary); padding: 20px; border-radius: 0 12px 12px 0; margin-bottom: 30px; }
-    .rule-box ul { margin: 0; padding-left: 20px; }
-    .rule-box li { margin-bottom: 10px; color: #333; }
-    .math-block { font-size: 1.5rem; text-align: center; padding: 20px; background: #fff; border: 1px solid var(--border); border-radius: 12px; margin: 20px 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
-    .step-box { background: #fff; padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; transform: translateX(-20px); opacity: 0; transition: all 0.5s; }
-    .step-box.visible { transform: translateX(0); opacity: 1; }
-    .step-box .highlight { color: var(--primary); font-weight: bold; font-size: 1.2rem; display: block; margin-top: 5px; }
-    
-    /* Quiz Styles */
-    .quiz-card { border-left: 4px solid transparent; transition: all 0.3s; }
-    .quiz-card.correct { border-left-color: var(--success); background: #f0fdf4; }
-    .quiz-card.wrong { border-left-color: var(--danger); background: #fef2f2; }
-    .question-text { font-size: 1.2rem; margin-bottom: 20px; font-weight: bold; }
-    .options { display: flex; flex-direction: column; gap: 10px; }
-    .option { background: #fff; border: 1px solid var(--border); padding: 15px 20px; border-radius: 12px; text-align: left; cursor: pointer; font-size: 1.1rem; transition: all 0.2s; color: var(--text); }
-    .option:hover:not(:disabled) { background: #f8f9fa; border-color: #c7d2fe; }
-    .option.selected.correct { background: var(--success); color: white; border-color: var(--success); }
-    .option.selected.wrong { background: var(--danger); color: white; border-color: var(--danger); }
-    .option:disabled { cursor: default; opacity: 0.8; }
-    .subjective-input { display: flex; gap: 10px; margin-top: 15px; }
-    .subj-input { flex: 1; padding: 15px; border: 1px solid var(--border); border-radius: 12px; font-size: 1.1rem; outline: none; transition: border-color 0.2s; }
-    .subj-input:focus { border-color: var(--primary); }
-    .feedback { margin-top: 15px; font-weight: bold; min-height: 24px; }
-    .feedback.correct { color: var(--success); }
-    .feedback.wrong { color: var(--danger); }
-    
-    /* Buttons */
-    .btn { background: var(--primary); color: #fff; border: none; padding: 15px 30px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; box-shadow: 0 4px 15px rgba(79, 127, 255, 0.3); }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79, 127, 255, 0.4); }
-    .btn-secondary { background: #fff; color: var(--primary); border: 2px solid var(--primary); box-shadow: none; }
-    .btn-secondary:hover { background: #f8f9fa; box-shadow: none; }
-    
-    .action-area { margin-top: 30px; text-align: center; }
-    
-    /* Confetti */
-    .confetti { position: absolute; width: 10px; height: 10px; background: red; animation: fall 3s linear forwards; z-index: 1000; }
-    
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fall { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
-    
-    /* Progress Bar */
-    .progress-container { background: #e9ecef; border-radius: 10px; height: 10px; margin-bottom: 20px; overflow: hidden; }
-    .progress-bar { background: var(--primary); height: 100%; width: 0%; transition: width 0.5s ease; }
+    :root { --primary: #4F7FFF; --success: #34C759; --danger: #FF3B30; --bg: #f8f9fa; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid var(--primary); padding-bottom: 20px; }
+    .header h1 { color: var(--primary); margin: 0; }
+    .card { background: white; border: 1px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: 0.3s; }
+    .card:hover { border-color: var(--primary); box-shadow: 0 4px 10px rgba(79,127,255,0.1); }
+    .card.correct { border-color: var(--success); background: #f0fdf4; }
+    .card.wrong { border-color: var(--danger); background: #fef2f2; }
+    .subj-badge { display: inline-block; padding: 5px 10px; border-radius: 20px; background: #eef2ff; color: var(--primary); font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; }
+    .q-text { font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; }
+    .options button { display: block; width: 100%; text-align: left; padding: 12px 15px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+    .options button:hover:not(:disabled) { background: #f8f9fa; border-color: var(--primary); }
+    .options button.selected.correct { background: var(--success); color: white; border-color: var(--success); }
+    .options button.selected.wrong { background: var(--danger); color: white; border-color: var(--danger); }
+    .feedback { font-weight: bold; margin-top: 10px; min-height: 24px; }
+    .score-board { position: sticky; top: 20px; background: var(--primary); color: white; padding: 15px; border-radius: 12px; text-align: center; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); float: right; margin-left: 20px; width: 150px; z-index: 100; }
   </style>
 </head>
 <body>
+  <div class="container">
+    <div class="score-board">
+      진행률: <span id="progress-txt">0 / 60</span><br>
+      정답: <span id="correct-txt">0</span>
+    </div>
+    
+    <div class="header">
+      <h1>🏆 전과목 60문제 종합 모의고사</h1>
+      <p>Day 5 (60문제 종합) | 2026.06.16</p>
+    </div>
+    
+    <div id="quiz-container">
 
-  <header class="header">
-    <h1>🚀 안티그래비티 스마트 학습서</h1>
-    <div style="font-weight: bold; color: var(--subtext);">2026.06.16 (화)</div>
-  </header>
-
-  <div class="desktop-layout">
-    <!-- Left Navigation -->
-    <nav class="sidebar-nav">
-      <div class="progress-nav">
-        <div id="nav-0" class="nav-btn active" onclick="navTo(0)">📚 개념 학습</div>
-        <div id="nav-1" class="nav-btn locked" onclick="navTo(1)">📝 기초 다지기</div>
-        <div id="nav-2" class="nav-btn locked" onclick="navTo(2)">🔥 실전 문제</div>
-        <div id="nav-3" class="nav-btn locked" onclick="navTo(3)">🏆 결과 확인</div>
-      </div>
-    </nav>
-
-    <!-- Main Content Area -->
-    <main class="main-content" id="main-scroll">
-      
-      <!-- Stage 0: Lecture -->
-      <div id="stage-0" class="section active">
-        <div class="card">
-          <h2>📚 좌변엔 문자, 우변엔 숫자! 이항</h2>
-          <p class="subtitle">방정식을 풀 때는 $x$가 있는 항은 모두 왼쪽(좌변)으로, 숫자는 모두 오른쪽(우변)으로 옮겨야 해. 부호를 바꾸면서 이사 가는 것을 '이항'이라고 한단다!</p>
-          
-          <div class="rule-box">
-            <ul><li>이항: 등호($=$)를 넘어갈 때는 반드시 부호를 바꾼다! ($+$는 $-$, $-$는 $+$)</li><li>일차방정식 풀이 순서: ① 괄호가 있으면 분배법칙으로 푼다.</li><li>② $x$항은 좌변으로, 상수항은 우변으로 이항한다.</li><li>③ 양변을 정리하여 $ax=b$ 형태로 만든 후, 양변을 $a$로 나눈다.</li></ul>
-          </div>
-          
-          <h3>💡 예제로 알아보기</h3>
-          <div class="math-block">$3x - 4 = x + 6$</div><p>다음 일차방정식을 풀어보자: $3x - 4 = x + 6$</p><div id="step-1" class="step-box">① $x$는 좌변으로, $-4$는 우변으로 이항 (부호 반대!) <br><span class="highlight">$3x - x = 6 + 4$</span></div><div id="step-2" class="step-box">② 양변을 정리한다. <br><span class="highlight">$2x = 10$</span></div><div id="step-3" class="step-box">③ 양변을 2로 나눈다. <br><span class="highlight">$x = 5$</span></div>
-          
-          <div class="action-area">
-            <button class="btn" onclick="nextStage(1)">개념 다 익혔어요! 기초 풀러가기 👉</button>
-          </div>
-        </div>
+      <div class="card" id="q-0">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">1. 방정식 $-5x - 4 = x - 34$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① 5</button>
+<button onclick="checkAnswer(this, false)">② 6</button>
+<button onclick="checkAnswer(this, false)">③ 7</button>
+<button onclick="checkAnswer(this, false)">④ 4</button>
+</div>
+        <div class="feedback"></div>
       </div>
 
-      <!-- Stage 1: Basic Quiz -->
-      <div id="stage-1" class="section">
-        <div class="card" style="margin-bottom: 30px;">
-          <h2>📝 기초 다지기</h2>
-          <p class="subtitle">개념을 잘 이해했는지 확인해볼까?</p>
-          <div class="progress-container"><div class="progress-bar" id="prog-1"></div></div>
-          <div style="text-align: right; color: var(--subtext); font-weight: bold;" id="score-1">0 / 10 완료</div>
-        </div>
-        
-      <div class="card quiz-card" data-qid="0">
-        <div class="question-text"><strong>Q1.</strong> $x - 5 = 2$ 에서 $-5$를 이항한 식을 쓰시오. (예: x=2+5)</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['x=2+5', 'x=5+2'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['x=2+5', 'x=5+2'])">확인</button>
-        </div>
+      <div class="card" id="q-1">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">2. 방정식 $x + 3 = -x + 13$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① 5</button>
+<button onclick="checkAnswer(this, false)">② 6</button>
+<button onclick="checkAnswer(this, false)">③ 4</button>
+<button onclick="checkAnswer(this, false)">④ 7</button>
+</div>
         <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card" data-qid="1">
-        <div class="question-text"><strong>Q2.</strong> $2x = x + 4$ 에서 우변의 $x$를 이항한 식을 쓰시오.</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['2x-x=4', '-x+2x=4'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['2x-x=4', '-x+2x=4'])">확인</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card" data-qid="2">
-        <div class="question-text"><strong>Q3.</strong> 방정식 $3x = 12$ 의 해를 구하시오.</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['4'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['4'])">확인</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card" data-qid="3">
-        <div class="question-text"><strong>Q4.</strong> 방정식 $-2x = 10$ 의 해를 구하시오.</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['-5'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['-5'])">확인</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card" data-qid="4">
-        <div class="question-text"><strong>Q5.</strong> 방정식 $x + 3 = 7$ 의 해를 구하시오.</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['4'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['4'])">확인</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card" data-qid="5">
-        <div class="question-text"><strong>Q6.</strong> 방정식 $2x - 1 = 5$ 의 해를 구하시오.</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['3'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['3'])">확인</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card" data-qid="6">
-        <div class="question-text"><strong>Q7.</strong> $4x - 2 = 2x + 6$ 에서 이항을 바르게 한 것은?</div>
-        <div class="options"><button class="option " onclick="checkAnswer(this, false)">① $4x+2x = 6-2$</button><button class="option correct" onclick="checkAnswer(this, true)">② $4x-2x = 6+2$</button><button class="option " onclick="checkAnswer(this, false)">③ $4x-2x = 6-2$</button><button class="option " onclick="checkAnswer(this, false)">④ $4x+2x = 6+2$</button></div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card" data-qid="7">
-        <div class="question-text"><strong>Q8.</strong> 방정식 $5x = 2x + 9$ 의 해를 구하시오.</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['3'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['3'])">확인</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card" data-qid="8">
-        <div class="question-text"><strong>Q9.</strong> 다음 방정식 중 해가 가장 큰 것은?</div>
-        <div class="options"><button class="option " onclick="checkAnswer(this, false)">① $2x=4$</button><button class="option " onclick="checkAnswer(this, false)">② $x+1=5$</button><button class="option correct" onclick="checkAnswer(this, true)">③ $3x-2=10$</button><button class="option " onclick="checkAnswer(this, false)">④ $5-x=2$</button></div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card" data-qid="9">
-        <div class="question-text"><strong>Q10.</strong> 방정식 $2(x-1) = x+3$ 의 해를 구하시오.</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['5'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['5'])">확인</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-        <div class="action-area">
-          <button class="btn" onclick="finishBasic()">기초 완료! 실전으로 넘어가기 🚀</button>
-        </div>
       </div>
 
-      <!-- Stage 2: Intro to Advanced -->
-      <div id="stage-2" class="section">
-        <div class="card" style="text-align: center; padding: 50px 30px;">
-          <h2>🔥 훌륭해! 기초를 완벽히 마쳤구나!</h2>
-          <p style="font-size: 1.2rem; color: var(--subtext); margin: 30px 0;">이제 진짜 실력을 발휘할 시간이야.<br>실전 문제는 조금 어려울 수 있지만 넌 할 수 있어!</p>
-          <img src="https://cdn-icons-png.flaticon.com/512/4146/4146813.png" width="120" style="margin-bottom: 30px;">
-          <button class="btn" onclick="startAdvanced()">도전! 실전 문제 시작하기 ⚔️</button>
-        </div>
+      <div class="card" id="q-2">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">3. 방정식 $-3x - 8 = x - 16$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 3</button>
+<button onclick="checkAnswer(this, true)">② 2</button>
+<button onclick="checkAnswer(this, false)">③ 1</button>
+<button onclick="checkAnswer(this, false)">④ 4</button>
+</div>
+        <div class="feedback"></div>
       </div>
 
-      <!-- Stage 3: Advanced Quiz -->
-      <div id="stage-3" class="section">
-        <div class="card" style="margin-bottom: 30px;">
-          <h2>🔥 실전 문제</h2>
-          <p class="subtitle">집중해서 끝까지 풀어보자!</p>
-          <div class="progress-container"><div class="progress-bar" id="prog-3"></div></div>
-          <div style="text-align: right; color: var(--subtext); font-weight: bold;" id="score-3">0 / 5 완료</div>
-        </div>
-        
-      <div class="card quiz-card adv-card" data-qid="adv0">
-        <div class="question-text"><strong>1.</strong> 방정식 $3(2x-1) = 2x+5$ 의 해를 구하시오.</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['2'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['2'])">확인</button>
-        </div>
+      <div class="card" id="q-3">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">4. 방정식 $-3x + 10 = -4x + 15$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 4</button>
+<button onclick="checkAnswer(this, false)">② 7</button>
+<button onclick="checkAnswer(this, true)">③ 5</button>
+<button onclick="checkAnswer(this, false)">④ 6</button>
+</div>
         <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card adv-card" data-qid="adv1">
-        <div class="question-text"><strong>2.</strong> 비례식 $(x+1) : 2 = (2x-1) : 3$ 의 해를 구하시오.</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['5'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['5'])">확인</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card adv-card" data-qid="adv2">
-        <div class="question-text"><strong>3.</strong> 방정식 $0.2x - 0.3 = 0.5x + 0.6$ 의 해는?</div>
-        <div class="options"><button class="option " onclick="checkAnswer(this, false)">① -1</button><button class="option " onclick="checkAnswer(this, false)">② -2</button><button class="option correct" onclick="checkAnswer(this, true)">③ -3</button><button class="option " onclick="checkAnswer(this, false)">④ -4</button></div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card adv-card" data-qid="adv3">
-        <div class="question-text"><strong>4.</strong> 방정식 $\\dfrac{x-1}{2} = \\dfrac{x+2}{3}$ 의 해는?</div>
-        <div class="options"><button class="option " onclick="checkAnswer(this, false)">① 4</button><button class="option " onclick="checkAnswer(this, false)">② 5</button><button class="option " onclick="checkAnswer(this, false)">③ 6</button><button class="option correct" onclick="checkAnswer(this, true)">④ 7</button></div>
-        <div class="feedback"></div>
-      </div>
-      <div class="card quiz-card adv-card" data-qid="adv4">
-        <div class="question-text"><strong>5.</strong> 방정식 $3x-a = 2x+4$ 의 해가 $x=5$ 일 때, 상수 $a$의 값을 구하시오.</div>
-        <div class="subjective-input">
-          <input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['1'])">
-          <button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['1'])">확인</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-        <div class="action-area">
-          <button class="btn" onclick="finishAdvanced()">수고했어! 채점 결과 보기 📊</button>
-        </div>
       </div>
 
-      <!-- Stage 4: Results -->
-      <div id="stage-done" class="section">
-        <div class="card" style="text-align: center; padding: 50px 30px;">
-          <h2>🎉 오늘의 학습 완료!</h2>
-          <img src="https://cdn-icons-png.flaticon.com/512/3176/3176294.png" width="150" style="margin: 20px 0;">
-          <h1 style="font-size: 3rem; color: var(--primary); margin: 20px 0;" id="final-score-txt">100점</h1>
-          <p style="font-size: 1.2rem; color: var(--subtext);">정말 멋져! 내일도 선생님이랑 같이 재밌게 공부하자!</p>
-          <button class="btn" style="margin-top: 30px;" onclick="location.href='../../index.html'">다음 날짜 학습하러 가기 👉</button>
-        </div>
+      <div class="card" id="q-4">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">5. 방정식 $x - 6 = -4x + 14$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 3</button>
+<button onclick="checkAnswer(this, true)">② 4</button>
+<button onclick="checkAnswer(this, false)">③ 6</button>
+<button onclick="checkAnswer(this, false)">④ 5</button>
+</div>
+        <div class="feedback"></div>
       </div>
 
-    </main>
+      <div class="card" id="q-5">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">6. 방정식 $-x - 4 = -2x - 6$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 0</button>
+<button onclick="checkAnswer(this, false)">② -3</button>
+<button onclick="checkAnswer(this, true)">③ -2</button>
+<button onclick="checkAnswer(this, false)">④ -1</button>
+</div>
+        <div class="feedback"></div>
+      </div>
 
-    <!-- Right Sidebar Chatbot -->
-    <aside class="sidebar-chat">
-      <div class="chat-header">
-        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" width="30">
-        <span>AI 수학 선생님</span>
+      <div class="card" id="q-6">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">7. 방정식 $-x - 10 = -4x - 22$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① -2</button>
+<button onclick="checkAnswer(this, false)">② -3</button>
+<button onclick="checkAnswer(this, false)">③ -5</button>
+<button onclick="checkAnswer(this, true)">④ -4</button>
+</div>
+        <div class="feedback"></div>
       </div>
-      <div class="chat-box" id="chat-box">
-        <div class="msg bot">안녕! 오늘 배울 내용 중에 모르는 게 있으면 언제든 물어봐! 선생님이 힌트를 줄게 😉</div>
+
+      <div class="card" id="q-7">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">8. 방정식 $5x - 2 = 2x - 11$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① -2</button>
+<button onclick="checkAnswer(this, false)">② -1</button>
+<button onclick="checkAnswer(this, true)">③ -3</button>
+<button onclick="checkAnswer(this, false)">④ -4</button>
+</div>
+        <div class="feedback"></div>
       </div>
-      <div class="chat-input-area">
-        <input type="text" id="chat-input" placeholder="질문을 입력하세요..." onkeypress="if(event.key==='Enter') sendMessage()">
-        <button onclick="sendMessage()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-        </button>
+
+      <div class="card" id="q-8">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">9. 방정식 $-3x - 2 = x - 18$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 5</button>
+<button onclick="checkAnswer(this, false)">② 6</button>
+<button onclick="checkAnswer(this, true)">③ 4</button>
+<button onclick="checkAnswer(this, false)">④ 3</button>
+</div>
+        <div class="feedback"></div>
       </div>
-    </aside>
+
+      <div class="card" id="q-9">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">10. 방정식 $3x + 5 = -4x - 16$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① -3</button>
+<button onclick="checkAnswer(this, false)">② -4</button>
+<button onclick="checkAnswer(this, false)">③ -2</button>
+<button onclick="checkAnswer(this, false)">④ -1</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-10">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">11. 방정식 $x + 3 = 2x + 3$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① -1</button>
+<button onclick="checkAnswer(this, false)">② 2</button>
+<button onclick="checkAnswer(this, false)">③ 1</button>
+<button onclick="checkAnswer(this, true)">④ 0</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-11">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">12. 방정식 $5x - 8 = -4x + 10$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 1</button>
+<button onclick="checkAnswer(this, true)">② 2</button>
+<button onclick="checkAnswer(this, false)">③ 4</button>
+<button onclick="checkAnswer(this, false)">④ 3</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-12">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">13. 방정식 $-4x + 3 = x + 8$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① -2</button>
+<button onclick="checkAnswer(this, true)">② -1</button>
+<button onclick="checkAnswer(this, false)">③ 0</button>
+<button onclick="checkAnswer(this, false)">④ 1</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-13">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">14. 방정식 $-4x - 1 = -2x - 3$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 3</button>
+<button onclick="checkAnswer(this, false)">② 0</button>
+<button onclick="checkAnswer(this, true)">③ 1</button>
+<button onclick="checkAnswer(this, false)">④ 2</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-14">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">15. 방정식 $2x - 1 = 5x - 13$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 5</button>
+<button onclick="checkAnswer(this, false)">② 6</button>
+<button onclick="checkAnswer(this, false)">③ 3</button>
+<button onclick="checkAnswer(this, true)">④ 4</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-15">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">16. 방정식 $4x + 5 = -5x + 5$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① -1</button>
+<button onclick="checkAnswer(this, false)">② 2</button>
+<button onclick="checkAnswer(this, false)">③ 1</button>
+<button onclick="checkAnswer(this, true)">④ 0</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-16">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">17. 방정식 $-x + 4 = -2x + 4$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① -1</button>
+<button onclick="checkAnswer(this, false)">② 1</button>
+<button onclick="checkAnswer(this, true)">③ 0</button>
+<button onclick="checkAnswer(this, false)">④ 2</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-17">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">18. 방정식 $-4x - 10 = 4x + 30$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① -4</button>
+<button onclick="checkAnswer(this, false)">② -6</button>
+<button onclick="checkAnswer(this, false)">③ -3</button>
+<button onclick="checkAnswer(this, true)">④ -5</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-18">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">19. 방정식 $-5x - 7 = 3x - 15$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① 1</button>
+<button onclick="checkAnswer(this, false)">② 3</button>
+<button onclick="checkAnswer(this, false)">③ 0</button>
+<button onclick="checkAnswer(this, false)">④ 2</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-19">
+        <div class="subj-badge">[수학]</div>
+        <div class="q-text">20. 방정식 $5x + 3 = 0x - 2$ 의 해를 구하시오.</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① -1</button>
+<button onclick="checkAnswer(this, false)">② 1</button>
+<button onclick="checkAnswer(this, false)">③ -2</button>
+<button onclick="checkAnswer(this, false)">④ 0</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-20">
+        <div class="subj-badge">[국어]</div>
+        <div class="q-text">21. 다음 중 품사가 다른 하나는?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 먹다</button>
+<button onclick="checkAnswer(this, false)">② 자다</button>
+<button onclick="checkAnswer(this, true)">③ 예쁘다</button>
+<button onclick="checkAnswer(this, false)">④ 달리다</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-21">
+        <div class="subj-badge">[국어]</div>
+        <div class="q-text">22. 다음 중 맞춤법이 올바른 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 설겆이</button>
+<button onclick="checkAnswer(this, true)">② 설거지</button>
+<button onclick="checkAnswer(this, false)">③ 설거지이</button>
+<button onclick="checkAnswer(this, false)">④ 설겆히</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-22">
+        <div class="subj-badge">[국어]</div>
+        <div class="q-text">23. 다음 중 의미가 비슷한 단어(유의어)로 묶인 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 기쁨-슬픔</button>
+<button onclick="checkAnswer(this, false)">② 시작-끝</button>
+<button onclick="checkAnswer(this, true)">③ 가끔-종종</button>
+<button onclick="checkAnswer(this, false)">④ 높다-낮다</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-23">
+        <div class="subj-badge">[국어]</div>
+        <div class="q-text">24. 다음 중 띄어쓰기가 올바른 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 나 보기가역겨워</button>
+<button onclick="checkAnswer(this, false)">② 나보기가 역겨워</button>
+<button onclick="checkAnswer(this, true)">③ 나 보기가 역겨워</button>
+<button onclick="checkAnswer(this, false)">④ 나보기 가역겨워</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-24">
+        <div class="subj-badge">[국어]</div>
+        <div class="q-text">25. 시에서 운율을 형성하는 요소가 아닌 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 반복</button>
+<button onclick="checkAnswer(this, false)">② 글자 수</button>
+<button onclick="checkAnswer(this, true)">③ 주제</button>
+<button onclick="checkAnswer(this, false)">④ 일정한 위치의 소리</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-25">
+        <div class="subj-badge">[국어]</div>
+        <div class="q-text">26. 소설의 3요소가 아닌 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 주제</button>
+<button onclick="checkAnswer(this, false)">② 구성</button>
+<button onclick="checkAnswer(this, false)">③ 문체</button>
+<button onclick="checkAnswer(this, true)">④ 운율</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-26">
+        <div class="subj-badge">[국어]</div>
+        <div class="q-text">27. 다음 중 고유어인 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 학교</button>
+<button onclick="checkAnswer(this, false)">② 우주</button>
+<button onclick="checkAnswer(this, true)">③ 가람</button>
+<button onclick="checkAnswer(this, false)">④ 컴퓨터</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-27">
+        <div class="subj-badge">[국어]</div>
+        <div class="q-text">28. 다음 문장에서 주어는? "예쁜 강아지가 뼈다귀를 먹는다."</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 예쁜</button>
+<button onclick="checkAnswer(this, true)">② 강아지가</button>
+<button onclick="checkAnswer(this, false)">③ 뼈다귀를</button>
+<button onclick="checkAnswer(this, false)">④ 먹는다</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-28">
+        <div class="subj-badge">[국어]</div>
+        <div class="q-text">29. 다음 중 속담의 뜻이 잘못 연결된 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 가는 말이 고와야 오는 말이 곱다 - 말조심</button>
+<button onclick="checkAnswer(this, true)">② 소 잃고 외양간 고친다 - 유비무환</button>
+<button onclick="checkAnswer(this, false)">③ 누워서 침 뱉기 - 남을 해치려다 자신만 당함</button>
+<button onclick="checkAnswer(this, false)">④ 발 없는 말이 천 리 간다 - 소문의 빠름</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-29">
+        <div class="subj-badge">[국어]</div>
+        <div class="q-text">30. 다음 중 문장의 종류가 다른 하나는?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 밥 먹어라.</button>
+<button onclick="checkAnswer(this, true)">② 빨리 가자.</button>
+<button onclick="checkAnswer(this, false)">③ 숙제 해라.</button>
+<button onclick="checkAnswer(this, false)">④ 이것 좀 줘.</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-30">
+        <div class="subj-badge">[영어]</div>
+        <div class="q-text">31. Choose the correct word: She _____ to school every day.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① go</button>
+<button onclick="checkAnswer(this, true)">② goes</button>
+<button onclick="checkAnswer(this, false)">③ going</button>
+<button onclick="checkAnswer(this, false)">④ went</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-31">
+        <div class="subj-badge">[영어]</div>
+        <div class="q-text">32. What is the opposite of "expensive"?</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① cheap</button>
+<button onclick="checkAnswer(this, false)">② tall</button>
+<button onclick="checkAnswer(this, false)">③ hard</button>
+<button onclick="checkAnswer(this, false)">④ fast</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-32">
+        <div class="subj-badge">[영어]</div>
+        <div class="q-text">33. Which sentence is grammatically correct?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① I is a student.</button>
+<button onclick="checkAnswer(this, false)">② He have a book.</button>
+<button onclick="checkAnswer(this, true)">③ They are playing soccer.</button>
+<button onclick="checkAnswer(this, false)">④ She don't like apples.</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-33">
+        <div class="subj-badge">[영어]</div>
+        <div class="q-text">34. What does "Look after" mean?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 찾다</button>
+<button onclick="checkAnswer(this, true)">② 돌보다</button>
+<button onclick="checkAnswer(this, false)">③ 존경하다</button>
+<button onclick="checkAnswer(this, false)">④ 조사하다</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-34">
+        <div class="subj-badge">[영어]</div>
+        <div class="q-text">35. Fill in the blank: I have an apple. _____ apple is red.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① A</button>
+<button onclick="checkAnswer(this, false)">② An</button>
+<button onclick="checkAnswer(this, true)">③ The</button>
+<button onclick="checkAnswer(this, false)">④ Some</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-35">
+        <div class="subj-badge">[영어]</div>
+        <div class="q-text">36. Choose the correct past tense of "buy".</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① buyed</button>
+<button onclick="checkAnswer(this, true)">② bought</button>
+<button onclick="checkAnswer(this, false)">③ bring</button>
+<button onclick="checkAnswer(this, false)">④ brought</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-36">
+        <div class="subj-badge">[영어]</div>
+        <div class="q-text">37. Which word has a different vowel sound?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① cat</button>
+<button onclick="checkAnswer(this, false)">② bat</button>
+<button onclick="checkAnswer(this, false)">③ hat</button>
+<button onclick="checkAnswer(this, true)">④ hate</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-37">
+        <div class="subj-badge">[영어]</div>
+        <div class="q-text">38. I _____ a movie when he called me.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① watch</button>
+<button onclick="checkAnswer(this, false)">② watched</button>
+<button onclick="checkAnswer(this, true)">③ was watching</button>
+<button onclick="checkAnswer(this, false)">④ am watching</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-38">
+        <div class="subj-badge">[영어]</div>
+        <div class="q-text">39. What is the plural form of "child"?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① childs</button>
+<button onclick="checkAnswer(this, false)">② childrens</button>
+<button onclick="checkAnswer(this, true)">③ children</button>
+<button onclick="checkAnswer(this, false)">④ childes</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-39">
+        <div class="subj-badge">[영어]</div>
+        <div class="q-text">40. Choose the correct preposition: We have a meeting _____ Monday.</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① in</button>
+<button onclick="checkAnswer(this, true)">② on</button>
+<button onclick="checkAnswer(this, false)">③ at</button>
+<button onclick="checkAnswer(this, false)">④ for</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-40">
+        <div class="subj-badge">[과학]</div>
+        <div class="q-text">41. 지구의 내부 구조 중 가장 부피가 큰 층은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 지각</button>
+<button onclick="checkAnswer(this, true)">② 맨틀</button>
+<button onclick="checkAnswer(this, false)">③ 외핵</button>
+<button onclick="checkAnswer(this, false)">④ 내핵</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-41">
+        <div class="subj-badge">[과학]</div>
+        <div class="q-text">42. 광합성에 필요한 물질이 아닌 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 물</button>
+<button onclick="checkAnswer(this, false)">② 이산화탄소</button>
+<button onclick="checkAnswer(this, false)">③ 햇빛</button>
+<button onclick="checkAnswer(this, true)">④ 산소</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-42">
+        <div class="subj-badge">[과학]</div>
+        <div class="q-text">43. 다음 중 암석이 풍화되는 원인이 아닌 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 물</button>
+<button onclick="checkAnswer(this, false)">② 바람</button>
+<button onclick="checkAnswer(this, false)">③ 생물</button>
+<button onclick="checkAnswer(this, true)">④ 마그마</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-43">
+        <div class="subj-badge">[과학]</div>
+        <div class="q-text">44. 물질의 상태 변화 중 고체가 액체로 되는 현상은?</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① 융해</button>
+<button onclick="checkAnswer(this, false)">② 응고</button>
+<button onclick="checkAnswer(this, false)">③ 기화</button>
+<button onclick="checkAnswer(this, false)">④ 액화</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-44">
+        <div class="subj-badge">[과학]</div>
+        <div class="q-text">45. 다음 중 생물의 특성이 아닌 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 세포로 구성</button>
+<button onclick="checkAnswer(this, false)">② 물질대사</button>
+<button onclick="checkAnswer(this, true)">③ 영원히 생존</button>
+<button onclick="checkAnswer(this, false)">④ 생식과 유전</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-45">
+        <div class="subj-badge">[과학]</div>
+        <div class="q-text">46. 지진의 세기를 나타내는 단위로, 관측소에서 느끼는 흔들림의 정도는?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 진원</button>
+<button onclick="checkAnswer(this, false)">② 진앙</button>
+<button onclick="checkAnswer(this, false)">③ 규모</button>
+<button onclick="checkAnswer(this, true)">④ 진도</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-46">
+        <div class="subj-badge">[과학]</div>
+        <div class="q-text">47. 식물의 잎에서 기공을 통해 물이 수증기 형태로 빠져나가는 현상은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 광합성</button>
+<button onclick="checkAnswer(this, false)">② 호흡</button>
+<button onclick="checkAnswer(this, true)">③ 증산 작용</button>
+<button onclick="checkAnswer(this, false)">④ 동화 작용</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-47">
+        <div class="subj-badge">[과학]</div>
+        <div class="q-text">48. 다음 중 화성암에 속하는 암석은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 석회암</button>
+<button onclick="checkAnswer(this, false)">② 대리암</button>
+<button onclick="checkAnswer(this, true)">③ 현무암</button>
+<button onclick="checkAnswer(this, false)">④ 사암</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-48">
+        <div class="subj-badge">[과학]</div>
+        <div class="q-text">49. 힘의 단위로 옳은 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① kg</button>
+<button onclick="checkAnswer(this, true)">② N(뉴턴)</button>
+<button onclick="checkAnswer(this, false)">③ m/s</button>
+<button onclick="checkAnswer(this, false)">④ J(줄)</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-49">
+        <div class="subj-badge">[과학]</div>
+        <div class="q-text">50. 빛의 3원색이 아닌 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 빨강</button>
+<button onclick="checkAnswer(this, false)">② 초록</button>
+<button onclick="checkAnswer(this, false)">③ 파랑</button>
+<button onclick="checkAnswer(this, true)">④ 노랑</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-50">
+        <div class="subj-badge">[사회]</div>
+        <div class="q-text">51. 우리나라의 표준시 기준이 되는 경도는?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 동경 120도</button>
+<button onclick="checkAnswer(this, true)">② 동경 135도</button>
+<button onclick="checkAnswer(this, false)">③ 서경 120도</button>
+<button onclick="checkAnswer(this, false)">④ 서경 135도</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-51">
+        <div class="subj-badge">[사회]</div>
+        <div class="q-text">52. 세계에서 가장 넓은 대륙은?</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① 아시아</button>
+<button onclick="checkAnswer(this, false)">② 아프리카</button>
+<button onclick="checkAnswer(this, false)">③ 유럽</button>
+<button onclick="checkAnswer(this, false)">④ 북아메리카</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-52">
+        <div class="subj-badge">[사회]</div>
+        <div class="q-text">53. 다음 중 민주 정치의 기본 원리가 아닌 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 국민 주권</button>
+<button onclick="checkAnswer(this, false)">② 권력 분립</button>
+<button onclick="checkAnswer(this, false)">③ 입헌주의</button>
+<button onclick="checkAnswer(this, true)">④ 독재</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-53">
+        <div class="subj-badge">[사회]</div>
+        <div class="q-text">54. 고조선을 건국한 인물은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 주몽</button>
+<button onclick="checkAnswer(this, false)">② 박혁거세</button>
+<button onclick="checkAnswer(this, true)">③ 단군왕검</button>
+<button onclick="checkAnswer(this, false)">④ 온조</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-54">
+        <div class="subj-badge">[사회]</div>
+        <div class="q-text">55. 지도에서 기복(높낮이)을 나타내기 위해 같은 높이의 지점을 연결한 선은?</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① 등고선</button>
+<button onclick="checkAnswer(this, false)">② 위선</button>
+<button onclick="checkAnswer(this, false)">③ 경선</button>
+<button onclick="checkAnswer(this, false)">④ 지형선</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-55">
+        <div class="subj-badge">[사회]</div>
+        <div class="q-text">56. 기후의 3요소가 아닌 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 기온</button>
+<button onclick="checkAnswer(this, false)">② 강수량</button>
+<button onclick="checkAnswer(this, false)">③ 바람</button>
+<button onclick="checkAnswer(this, true)">④ 토양</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-56">
+        <div class="subj-badge">[사회]</div>
+        <div class="q-text">57. 신라의 삼국 통일에 크게 기여한 청소년 수양 단체는?</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① 화랑도</button>
+<button onclick="checkAnswer(this, false)">② 국학</button>
+<button onclick="checkAnswer(this, false)">③ 태학</button>
+<button onclick="checkAnswer(this, false)">④ 서원</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-57">
+        <div class="subj-badge">[사회]</div>
+        <div class="q-text">58. 조선 시대에 왕의 비서 기관 역할을 했던 곳은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 의금부</button>
+<button onclick="checkAnswer(this, true)">② 승정원</button>
+<button onclick="checkAnswer(this, false)">③ 사헌부</button>
+<button onclick="checkAnswer(this, false)">④ 사간원</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-58">
+        <div class="subj-badge">[사회]</div>
+        <div class="q-text">59. 인구가 도시로 집중되면서 발생하는 문제가 아닌 것은?</div>
+        <div class="options"><button onclick="checkAnswer(this, false)">① 교통 혼잡</button>
+<button onclick="checkAnswer(this, false)">② 주택 부족</button>
+<button onclick="checkAnswer(this, false)">③ 환경 오염</button>
+<button onclick="checkAnswer(this, true)">④ 노동력 부족</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="card" id="q-59">
+        <div class="subj-badge">[사회]</div>
+        <div class="q-text">60. 국가의 주권이 국민에게 있다는 원리는?</div>
+        <div class="options"><button onclick="checkAnswer(this, true)">① 국민 주권의 원리</button>
+<button onclick="checkAnswer(this, false)">② 권력 분립의 원리</button>
+<button onclick="checkAnswer(this, false)">③ 법치주의의 원리</button>
+<button onclick="checkAnswer(this, false)">④ 입헌주의의 원리</button>
+</div>
+        <div class="feedback"></div>
+      </div>
+
+    </div>
+    <div style="text-align:center; margin-top: 40px;">
+      <button onclick="finishExam()" style="background:var(--primary); color:white; border:none; padding:15px 40px; font-size:1.2rem; border-radius:30px; font-weight:bold; cursor:pointer; box-shadow:0 4px 15px rgba(79,127,255,0.3);">채점 완료 및 결과 보기 🎉</button>
+    </div>
   </div>
 
   <script>
-    /* State Management */
-    const DAY_ID = "math_5";
-    let state = JSON.parse(localStorage.getItem('edu_state_' + DAY_ID)) || { stage: 0, basicScore: 0, advScore: 0, answers: {} };
+    let answered = 0;
+    let correctCount = 0;
     
-    function saveState() { localStorage.setItem('edu_state_' + DAY_ID, JSON.stringify(state)); }
-
-    /* Navigation */
-    function navTo(stageIdx) {
-      if(document.getElementById('nav-'+stageIdx).classList.contains('locked')) return;
-      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-      
-      let targetId = 'stage-' + stageIdx;
-      if(stageIdx === 4) targetId = 'stage-done';
-      
-      document.getElementById(targetId).classList.add('active');
-      const navBtn = document.getElementById('nav-'+stageIdx);
-      if(navBtn) navBtn.classList.add('active');
-      document.getElementById('main-scroll').scrollTop = 0;
-      
-      if(stageIdx === 0) animateSteps();
-    }
-
-    function nextStage(nextIdx) {
-      state.stage = Math.max(state.stage, nextIdx);
-      saveState();
-      updateNav();
-      navTo(nextIdx);
-    }
-
-    function updateNav() {
-      for(let i=0; i<=4; i++) {
-        const btn = document.getElementById('nav-'+i);
-        if(!btn) continue;
-        if(i <= state.stage) {
-          btn.classList.remove('locked');
-          if(i < state.stage) btn.classList.add('completed');
-        }
-      }
-    }
-
-    /* Animations */
-    function animateSteps() {
-      const boxes = document.querySelectorAll('.step-box');
-      boxes.forEach(b => b.classList.remove('visible'));
-      boxes.forEach((box, i) => {
-        setTimeout(() => box.classList.add('visible'), (i+1)*800);
-      });
-    }
-
-    function createConfetti() {
-      for(let i=0; i<50; i++) {
-        const c = document.createElement('div');
-        c.className = 'confetti';
-        c.style.left = Math.random() * 100 + 'vw';
-        c.style.backgroundColor = ['#FF3B30','#34C759','#4F7FFF','#FF9F0A','#AF52DE'][Math.floor(Math.random()*5)];
-        c.style.animationDuration = (Math.random() * 2 + 2) + 's';
-        document.body.appendChild(c);
-        setTimeout(() => c.remove(), 4000);
-      }
-    }
-
-    function playSound(type) {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      
-      if(type === 'correct') {
-        osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        osc.start(); osc.stop(ctx.currentTime + 0.3);
-      } else if (type === 'wrong') {
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        osc.start(); osc.stop(ctx.currentTime + 0.3);
-      } else if (type === 'tada') {
-        osc.type = 'square'; osc.frequency.setValueAtTime(400, ctx.currentTime);
-        osc.frequency.setValueAtTime(500, ctx.currentTime + 0.1);
-        osc.frequency.setValueAtTime(600, ctx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-        osc.start(); osc.stop(ctx.currentTime + 0.5);
-      }
-    }
-
-    /* Quiz Logic */
     function checkAnswer(btn, isCorrect) {
       const card = btn.closest('.card');
-      const qid = card.dataset.qid;
-      if(state.answers[qid]) return; // Already answered
+      if (card.classList.contains('answered')) return;
       
-      const options = card.querySelectorAll('.option');
+      card.classList.add('answered');
+      const options = card.querySelectorAll('button');
       options.forEach(o => o.disabled = true);
       
-      if(isCorrect) {
+      answered++;
+      if (isCorrect) {
         btn.classList.add('selected', 'correct');
         card.classList.add('correct');
-        card.querySelector('.feedback').innerText = "🎉 정답입니다! 완벽해요!";
-        card.querySelector('.feedback').className = 'feedback correct';
-        playSound('correct');
+        card.querySelector('.feedback').innerText = "🎉 정답입니다!";
+        card.querySelector('.feedback').style.color = "var(--success)";
+        correctCount++;
       } else {
         btn.classList.add('selected', 'wrong');
         card.classList.add('wrong');
-        card.querySelector('.feedback').innerText = "❌ 아쉽네요. 다시 한번 개념을 확인해보세요!";
-        card.querySelector('.feedback').className = 'feedback wrong';
-        options.forEach(o => { if(o.classList.contains('correct')) o.style.border = '2px solid var(--success)'; });
-        playSound('wrong');
+        card.querySelector('.feedback').innerText = "❌ 오답입니다.";
+        card.querySelector('.feedback').style.color = "var(--danger)";
+        // Highlight correct option (we don't know index here, but we can style it if we wanted. Simplified for now).
       }
-      state.answers[qid] = isCorrect ? 1 : 0;
-      saveState();
-      updateProgress(card.closest('.section').id);
+      
+      document.getElementById('progress-txt').innerText = answered + " / 60";
+      document.getElementById('correct-txt').innerText = correctCount;
     }
-
-    function checkSubjective(inputEl, correctAnswers) {
-      const card = inputEl.closest('.card');
-      const qid = card.dataset.qid;
-      if(state.answers[qid]) return;
-      
-      const userVal = inputEl.value.replace(/\s/g, '').toLowerCase();
-      if(!userVal) return;
-      
-      inputEl.disabled = true;
-      card.querySelector('button').disabled = true;
-      
-      let isCorrect = false;
-      correctAnswers.forEach(ans => {
-        if(userVal === String(ans).replace(/\s/g, '').toLowerCase()) isCorrect = true;
-      });
-      
-      if(isCorrect) {
-        card.classList.add('correct');
-        card.querySelector('.feedback').innerText = "🎉 정답입니다! 완벽해요!";
-        card.querySelector('.feedback').className = 'feedback correct';
-        playSound('correct');
-      } else {
-        card.classList.add('wrong');
-        card.querySelector('.feedback').innerText = "❌ 오답입니다. 정답: " + correctAnswers.join(' 또는 ');
-        card.querySelector('.feedback').className = 'feedback wrong';
-        playSound('wrong');
+    
+    function finishExam() {
+      if(answered < 60) {
+        if(!confirm("아직 풀지 않은 문제가 있습니다. 채점을 완료하시겠습니까?")) return;
       }
-      state.answers[qid] = isCorrect ? 1 : 0;
-      saveState();
-      updateProgress(card.closest('.section').id);
-    }
-
-    function updateProgress(sectionId) {
-      const section = document.getElementById(sectionId);
-      const cards = section.querySelectorAll('.quiz-card');
-      const total = cards.length;
-      let answered = 0;
-      let correct = 0;
-      
-      cards.forEach(card => {
-        const qid = card.dataset.qid;
-        if(state.answers[qid] !== undefined) {
-          answered++;
-          if(state.answers[qid] === 1) correct++;
-        }
-      });
-      
-      const stageNum = sectionId === 'stage-1' ? 1 : 3;
-      document.getElementById('prog-'+stageNum).style.width = (answered/total)*100 + '%';
-      document.getElementById('score-'+stageNum).innerText = answered + ' / ' + total + ' 완료';
-      
-      return { total, answered, correct };
-    }
-
-    function countCorrect(sectionId) {
-      return updateProgress(sectionId);
-    }
-
-    function finishBasic() {
-      const r = countCorrect('stage-1');
-      if(r.answered < r.total) return alert("아직 안 푼 문제가 있어요!");
-      state.basicScore = Math.round((r.correct / r.total) * 100);
-      nextStage(2);
-    }
-
-    function startAdvanced() { nextStage(3); }
-
-    function finishAdvanced() {
-      const r = countCorrect('stage-3');
-      if(r.answered < r.total) return alert("아직 안 푼 문제가 있어요!");
-      let score = Math.round((r.correct / r.total) * 100);
-      state.advScore = score; state.stage = 4; saveState();
-      playSound('tada'); for(let i=0; i<3; i++) setTimeout(createConfetti, i*500);
-      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      document.getElementById('stage-done').classList.add('active');
-      document.getElementById('final-score-txt').innerText = "최종 실전 점수: " + score + "점 / 100점"; updateNav();
-    }
-
-    /* Chatbot Logic */
-    const API_KEY = atob("QVEuQWI4Uk42S19fVkhfUnhQb2hhV3RSb193dFl6eXRaS0x3ZnI3a2Q0NFJMWmVzTFNOdWc=");
-    let chatHistory = [
-      { role: "user", parts: [{ text: "너는 친절한 중학교 수학 과외 선생님이야. 학생이 모르는 걸 물어보면 절대 정답을 바로 말하지 말고, 힌트만 주고 스스로 풀 수 있도록 유도해. 이모지를 써서 다정하게 말해줘." }]},
-      { role: "model", parts: [{ text: "알겠어! 나는 친절한 수학 과외 선생님이야. 정답 대신 힌트로 스스로 깨닫게 도와줄게! 😊 어떤 문제가 헷갈려?" }]}
-    ];
-
-    async function sendMessage() {
-      const inputEl = document.getElementById('chat-input');
-      const text = inputEl.value.trim();
-      if(!text) return;
-      
-      addMessage(text, 'user');
-      inputEl.value = '';
-      
-      chatHistory.push({ role: "user", parts: [{ text }] });
-      const loadingId = addMessage("입력 중...", "bot loading");
-      const box = document.getElementById('chat-box');
-      box.scrollTop = box.scrollHeight;
-      
-      try {
-        const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: chatHistory })
-        });
-        const data = await res.json();
-        
-        document.getElementById(loadingId).remove();
-        
-        if(data.error) {
-          addMessage("앗, 선생님이 지금 바빠서 대답을 못하겠어. 조금 이따 다시 물어봐줄래? 😭", 'bot');
-        } else {
-          const reply = data.candidates[0].content.parts[0].text;
-          addMessage(reply, 'bot');
-          chatHistory.push({ role: "model", parts: [{ text: reply }] });
-          
-          // Re-render math in chat box
-          renderMathInElement(box, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });
-        }
-      } catch(e) {
-        document.getElementById(loadingId).remove();
-        addMessage("네트워크 오류가 발생했어. 연결을 확인해줘!", 'bot');
-      }
-      box.scrollTop = box.scrollHeight;
-    }
-
-    function addMessage(text, type) {
-      const box = document.getElementById('chat-box');
-      const div = document.createElement('div');
-      div.className = 'msg ' + type;
-      // Very simple bold and markdown parsing
-      let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      formatted = formatted.replace(/
-/g, '<br>');
-      div.innerHTML = formatted;
-      const id = 'msg-' + Date.now();
-      div.id = id;
-      box.appendChild(div);
-      return id;
+      const score = Math.round((correctCount / 60) * 100);
+      alert("수고하셨습니다!\n\n총 60문제 중 " + correctCount + "문제를 맞췄습니다.\n점수: " + score + "점");
+      location.href = "../../index.html";
     }
 
     document.addEventListener("DOMContentLoaded", function() {
       renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });
-      if(state.stage === 4) { document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active')); document.getElementById('stage-done').classList.add('active'); document.getElementById('final-score-txt').innerText = "최종 실전 점수: " + state.advScore + "점 / 100점"; } 
-      else { navTo(state.stage); }
     });
   </script>
 </body>
