@@ -532,7 +532,7 @@
 
     document.addEventListener("DOMContentLoaded", function() {
       renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });
-      if(state.stage === 4) { document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active')); document.getElementById('stage-done').classList.add('active'); document.getElementById('final-score-txt').innerText = "최종 실전 점수: " + state.advScore + "점 / 100점"; } 
+      if(state.stage >= 4) { document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active')); document.getElementById('stage-done').classList.add('active'); document.getElementById('final-score-txt').innerText = "최종 실전 점수: " + state.advScore + "점 / 100점"; } 
       else { navTo(state.stage); }
     });
     let aiQuizState = { total: 0, correct: 0, answered: 0 };
