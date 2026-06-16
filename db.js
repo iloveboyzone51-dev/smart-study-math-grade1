@@ -16,11 +16,11 @@ window.cloudDB = {
 // 클라우드 DB 불러오기
 async function getCloudDB() {
   try {
-    const res = await fetch(ISSUE_URL, {
+    const res = await fetch(ISSUE_URL + "?t=" + Date.now(), {
+      cache: 'no-store',
       headers: {
         'Accept': 'application/vnd.github.v3+json',
-        'Authorization': 'token ' + CLOUD_TOKEN,
-        'Cache-Control': 'no-cache'
+        'Authorization': 'token ' + CLOUD_TOKEN
       }
     });
     if(res.ok) {
