@@ -187,9 +187,8 @@
       padding: 10px 0;
     }
     .cal-day {
-      background: var(--bg-color);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
+      background: white;
+      border: none;
       min-height: 80px;
       padding: 10px;
       display: flex;
@@ -223,8 +222,6 @@
   </style>
 
   <script>
-    const API_KEY = atob("QVEuQWI4Uk42S19fVkhfUnhQb2hhV3RSb193dFl6eXRaS0x3ZnI3a2Q0NFJMWmVzTFNOdWc=");
-
     function getStatus(dateStr) {
       // 기존 하위호환 및 새로운 키 체크
       let status = "X";
