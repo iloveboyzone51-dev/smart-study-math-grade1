@@ -6,10 +6,10 @@
   <title>스마트 학습서 - 메인 허브</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css">
   <style>
     :root { --bg: #F0F2F5; --primary: #4F7FFF; --success: #34C759; --warning: #FF9F0A; --danger: #FF3B30; --text: #1C1C1E; --subtext: #6E6E73; --card-bg: #FFFFFF; --border: #E5E5EA; }
-    * { box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; }
+    * { box-sizing: border-box; font-family: 'NanumSquare', sans-serif; }
     body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.6; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
     
     .header { background: #fff; padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; z-index: 10; }
@@ -60,40 +60,9 @@
   </div>
 
   <div class="desktop-layout">
-    <!-- Left Nav -->
-    <aside class="sidebar-nav">
-      <div class="progress-nav">
-        <a href="#" class="nav-item active">🏠 대시보드 홈</a>
-        <a href="days/2026-06-12/math_char_expr_1.html" class="nav-item">📚 1일차 학습</a>
-        <a href="days/2026-06-13/math_char_expr_2.html" class="nav-item">📚 2일차 학습</a>
-        <a href="days/2026-06-14/math_char_expr_3.html" class="nav-item">📚 3일차 학습</a>
-      </div>
-    </aside>
-
     <!-- Main Content -->
     <main class="main-content">
       <div class="container">
-        <div class="stats">
-          <div class="stat-box">
-            <h3>🔥 연속 학습일</h3>
-            <div class="num">3일</div>
-          </div>
-          <div class="stat-box">
-            <h3>🎯 완료한 미션</h3>
-            <div class="num" id="completed-count">0/3</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2 style="color: var(--text); margin-top: 0; margin-bottom: 25px;">💾 데이터 관리</h2>
-          <p style="color: var(--subtext); margin-bottom: 20px;">다른 PC(회사 노트북 등)에서 이어서 학습하려면 데이터를 저장하고 불러오세요.</p>
-          <div style="display: flex; gap: 10px;">
-            <button onclick="exportData()" class="btn-primary" style="flex:1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; background: var(--success);">📥 학습 데이터 다운로드 (저장)</button>
-            <button onclick="document.getElementById('importFile').click()" class="btn-primary" style="flex:1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; background: var(--warning);">📤 학습 데이터 불러오기 (가져오기)</button>
-            <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
-          </div>
-        </div>
-
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
             <h2 style="color: var(--text); margin: 0;">📅 2026년 6월 학습 달력</h2>
@@ -113,6 +82,27 @@
             <div class="cal-header">금</div>
             <div class="cal-header">토</div>
             <!-- 달력 날짜가 JS로 생성됩니다 -->
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat-box" style="flex:2;">
+            <h3>💡 오늘의 추천 학습일</h3>
+            <div class="num" id="recommend-day" style="font-size:1.5rem; margin-top:10px; color:#1C1C1E; font-weight:bold; cursor:pointer;" onclick="goRecommend()">미완료된 일자를 찾는 중...</div>
+          </div>
+          <div class="stat-box">
+            <h3>🎯 이번 달 미션</h3>
+            <div class="num" id="completed-count" style="font-size:1.8rem;">0일 / 미완료 0일</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 style="color: var(--text); margin-top: 0; margin-bottom: 25px;">💾 데이터 관리</h2>
+          <p style="color: var(--subtext); margin-bottom: 20px;">다른 PC(회사 노트북 등)에서 이어서 학습하려면 데이터를 저장하고 불러오세요.</p>
+          <div style="display: flex; gap: 10px;">
+            <button onclick="exportData()" class="btn-primary" style="flex:1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; background: var(--success);">📥 학습 데이터 다운로드 (저장)</button>
+            <button onclick="document.getElementById('importFile').click()" class="btn-primary" style="flex:1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; background: var(--warning);">📤 학습 데이터 불러오기 (가져오기)</button>
+            <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
           </div>
         </div>
       </div>
@@ -271,8 +261,8 @@
           if (data.status === 'Triangle') {
             alert(`[${day}일 학습 미완료 사유]\n\n${data.reason}`);
           }
-          // 학습 페이지로 이동 (기존 페이지가 있는 날짜만 연결)
-          if (day === 12) location.href = "days/2026-06-12/math_char_expr_1.html";
+          if (day === 11) location.href = "days/2026-06-11/math_char_expr_0.html";
+          else if (day === 12) location.href = "days/2026-06-12/math_char_expr_1.html";
           else if (day === 13) location.href = "days/2026-06-13/math_char_expr_2.html";
           else if (day === 14) location.href = "days/2026-06-14/math_char_expr_3.html";
           else {
@@ -283,7 +273,40 @@
         cal.appendChild(cell);
       }
 
-      document.getElementById('completed-count').innerText = `${completedCount}일`;
+      document.getElementById('completed-count').innerText = `${completedCount}일 / 미완료 ${daysInMonth - completedCount}일`;
+
+      // 추천 학습일 찾기
+      const recommendEl = document.getElementById('recommend-day');
+      const today = new Date('2026-06-16');
+      let found = false;
+      for(let d=1; d<=daysInMonth; d++) {
+        const dateStr = `2026-06-${String(d).padStart(2, '0')}`;
+        const targetDate = new Date(dateStr);
+        if(targetDate < today) {
+          const st = getStatus(dateStr).status;
+          if(st !== 'O') {
+            recommendEl.innerHTML = `<span style="color:var(--primary); text-decoration:underline;">6월 ${d}일 (${['일','월','화','수','목','금','토'][(d+firstDayOffset-1)%7]}) 학습 이어서 하기 🚀</span>`;
+            recommendEl.dataset.day = d;
+            found = true;
+            break;
+          }
+        }
+      }
+      if(!found) {
+        recommendEl.innerText = "🎉 밀린 학습이 없습니다! 최고예요!";
+        recommendEl.onclick = null;
+      }
+    }
+
+    function goRecommend() {
+      const d = document.getElementById('recommend-day').dataset.day;
+      if(!d) return;
+      const day = parseInt(d);
+      if (day === 11) location.href = "days/2026-06-11/math_char_expr_0.html";
+      else if (day === 12) location.href = "days/2026-06-12/math_char_expr_1.html";
+      else if (day === 13) location.href = "days/2026-06-13/math_char_expr_2.html";
+      else if (day === 14) location.href = "days/2026-06-14/math_char_expr_3.html";
+      else alert(`${day}일자 학습 페이지를 불러올 수 없습니다. 원장님이 준비 중입니다.`);
     }
 
     renderCalendar();
@@ -326,8 +349,8 @@
     }
 
     let chatHistory = [
-      { role: "user", parts: [{ text: "너는 친절한 중학교 수학 과외 선생님이야. 학생이 모르는 걸 물어보면 절대 정답을 바로 말하지 말고, 힌트만 주고 스스로 풀 수 있도록 유도해. 이모지를 써서 다정하게 말해줘." }]},
-      { role: "model", parts: [{ text: "알겠어! 나는 친절한 수학 과외 선생님이야. 정답 대신 힌트로 스스로 깨닫게 도와줄게! 😊 어떤 문제가 헷갈려?" }]}
+      { role: "user", parts: [{ text: "너는 친절한 중학교 수학 과외 선생님이야. 학생이 모르는 걸 물어보면 절대 정답을 바로 말하지 말고, 힌트만 주고 스스로 풀 수 있도록 유도해. 이모지는 1~2개로 아주 최소한으로만 사용하고, 가독성을 위해 문단을 잘 나누어서 대답해줘. 마크다운 기호(** 등)는 절대 사용하지 말고 강조할 내용이 있으면 따옴표나 홑따옴표를 써." }]},
+      { role: "model", parts: [{ text: "알겠어! 나는 친절한 수학 과외 선생님이야. 정답 대신 힌트로 스스로 깨닫게 도와줄게! 어떤 문제가 헷갈려?" }]}
     ];
 
     async function sendMessage() {

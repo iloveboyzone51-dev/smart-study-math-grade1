@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>스마트 학습서 - 3일차: 일차식의 계산</title>
+  <title>스마트 학습서 - 샘플: 문자와 식 피드백 테스트</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -77,7 +77,7 @@
 </head>
 <body>
   <div class="header">
-    <h1>📚 스마트 학습서 - 3일차: 일차식의 계산</h1>
+    <h1>📚 스마트 학습서 - 샘플: 문자와 식 피드백 테스트</h1>
     <a href="../../index.html" style="text-decoration: none; color: var(--text); font-weight: bold;">🏠 메인 허브로</a>
   </div>
 
@@ -99,94 +99,125 @@
         <div id="stage-1" class="section active">
           <div class="card">
             <h2>👋 안녕! 오늘 뭐 배우나요?</h2>
-            <p>이제 문자가 들어간 식끼리 덧셈, 뺄셈, 곱셈, 나눗셈을 할 차례야! 같은 문자는 같은 문자끼리 묶어서 계산해.</p>
+            <p>자, 이제 선생님이랑 같이 <strong>'문자와 식'</strong> 첫걸음을 떼어 볼 거야! 곱셈과 나눗셈 기호를 생략하는 규칙을 배워보자.</p>
           </div>
           <div class="card">
             <h2>✨ 핵심 마법 규칙</h2>
             <ul style="line-height: 2;">
-              <li>동류항: 문자와 차수가 각각 같은 항! (예: $2x$와 $-5x$)</li>
-              <li>동류항의 덧셈/뺄셈: 숫자(계수)끼리 계산하고 문자는 그대로 붙인다! (예: $3x+4x=7x$)</li>
-              <li>분배법칙: 괄호 밖의 수를 안쪽 모든 항에 곱해준다! (예: $2(x+3) = 2x+6$)</li>
-              <li>서로 다른 문자는 더할 수 없다! ($2x + 3y$는 그대로 둔다)</li>
+              <li>수와 문자의 곱셈에서 $\times$는 생략하고 숫자를 문자 앞에 쓴다! (예: $x \times 3 \Rightarrow 3x$)</li>
+              <li>문자끼리의 곱셈은 알파벳 순서대로 쓴다! (예: $b \times a \Rightarrow ab$)</li>
+              <li>같은 문자의 곱은 거듭제곱으로 나타낸다! (예: $a \times a \times a \Rightarrow a^3$)</li>
+              <li>1이나 -1과 문자의 곱에서 1은 생략한다! (예: $1 \times a \Rightarrow a$, $-1 \times a \Rightarrow -a$)</li>
+              <li>나눗셈 $\div$ 은 분수로 바꾼다! (예: $a \div 3 \Rightarrow \dfrac{a}{3}$)</li>
             </ul>
           </div>
           <div class="card">
             <h2>👩‍🏫 선생님의 시범 풀이</h2>
-            <div class="math-block">$3(2x - 1) - 2(x + 4)$</div><p>다음 식을 간단히 해보자: $3(2x - 1) - 2(x + 4)$</p>
-            <div id="step-1" class="step-box">① 분배법칙으로 괄호를 푼다. <br><span class="highlight">$6x - 3 - 2x - 8$</span></div>
-            <div id="step-2" class="step-box">② 동류항끼리 모은다. <br><span class="highlight">$(6x - 2x) + (-3 - 8)$</span></div>
-            <div id="step-3" class="step-box">③ 계수끼리 계산한다. <br><span class="highlight">$4x - 11$</span></div>
+            <div class="math-block">$(a \div 3) \times b$</div><p>다음 식을 간단히 해보자: $(a \div 3) \times b$</p>
+            <div id="step-1" class="step-box">① 괄호 안의 나눗셈을 분수로 바꾼다. <br><span class="highlight">$\dfrac{a}{3} \times b$</span></div>
+            <div id="step-2" class="step-box">② 분자에 $b$를 곱해준다. <br><span class="highlight">$\dfrac{ab}{3}$</span></div>
             <button id="next-step-btn" class="btn btn-primary" onclick="showNextStep()" style="margin-top: 20px;">다음 단계 보기 👀</button>
           </div>
           <button class="btn btn-primary" onclick="finishLecture()">✅ 강의 다 들었어요! (2단계로 이동)</button>
         </div>
 
         <!-- Stage 2 -->
-        <div id="stage-2" class="section">
-          <div class="card" style="background: var(--primary); color: white;">
-            <h2 style="color: white; margin: 0;">💪 기초 연습문제 (15문제)</h2>
-            <p style="margin-bottom: 0;">수식 입력 시 띄어쓰기는 무시되니 편하게 입력하세요!</p>
+              <div id="stage-2" class="section">
+        <h2>✏️ 2단계: 주관식 피드백 테스트 (총 7문제)</h2>
+        <p>틀리면 바로 정답을 알려주지 않고 <b>힌트</b>가 나옵니다! 다시 풀어보세요.</p>
+        <div class="quiz-card" data-hint="거스름돈은 낸 돈에서 물건값을 빼면 됩니다." data-explanation="$1000$원에서 $x$원짜리 물건을 샀으므로, 남은 돈은 $(1000 - x)$원입니다.">
+          <div class="q-text">1. 1000원을 내고 $x$원짜리 아이스크림을 샀을 때의 거스름돈을 식으로 나타내세요.</div>
+          <div class="options subjective">
+            <input type="text" class="subj-input" placeholder="정답 입력...">
+            <button class="btn-primary" onclick="checkSubjectiveWithHint(this, ['1000-x', '1000 - x'])">확인</button>
           </div>
-          
-          <div class="card quiz-card" data-qid="0"><div class="question-text"><strong>Q1.</strong> $2x + 5x$ 를 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요 (예: 2x+3)" onkeypress="if(event.key==='Enter') checkSubjective(this, ['7x'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['7x'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="1"><div class="question-text"><strong>Q2.</strong> $8y - 3y$ 를 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['5y'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['5y'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="2"><div class="question-text"><strong>Q3.</strong> $4a + a$ 를 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['5a'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['5a'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="3"><div class="question-text"><strong>Q4.</strong> $-3x - 2x$ 를 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['-5x'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['-5x'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="4"><div class="question-text"><strong>Q5.</strong> $2(x + 4)$ 를 분배법칙으로 전개하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['2x+8'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['2x+8'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="5"><div class="question-text"><strong>Q6.</strong> $-3(y - 2)$ 를 분배법칙으로 전개하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['-3y+6'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['-3y+6'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="6"><div class="question-text"><strong>Q7.</strong> $(10x - 5) \div 5$ 를 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['2x-1'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['2x-1'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="7"><div class="question-text"><strong>Q8.</strong> $- (2x - 3)$ 의 괄호를 푸시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['-2x+3'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['-2x+3'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="8"><div class="question-text"><strong>Q9.</strong> $3x + 2 + 4x - 5$ 를 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['7x-3'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['7x-3'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="9"><div class="question-text"><strong>Q10.</strong> $5a - (2a + 1)$ 을 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['3a-1'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['3a-1'])">확인</button></div><div class="feedback"></div></div>
-          
-          <div class="card quiz-card" data-qid="10"><div class="question-text"><strong>Q11.</strong> 다음 중 $3x$와 동류항인 것은?</div><div class="options"><button class="option " onclick="checkAnswer(this, false)">① $3y$</button><button class="option correct" onclick="checkAnswer(this, true)">② $-2x$</button><button class="option " onclick="checkAnswer(this, false)">③ $3x^2$</button><button class="option " onclick="checkAnswer(this, false)">④ $3$</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="11"><div class="question-text"><strong>Q12.</strong> $4(2x - 1)$ 을 간단히 한 것은?</div><div class="options"><button class="option " onclick="checkAnswer(this, false)">① $8x - 1$</button><button class="option correct" onclick="checkAnswer(this, true)">② $8x - 4$</button><button class="option " onclick="checkAnswer(this, false)">③ $6x - 4$</button><button class="option " onclick="checkAnswer(this, false)">④ $8x + 4$</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="12"><div class="question-text"><strong>Q13.</strong> $(6a + 9) \times \dfrac{1}{3}$ 을 간단히 한 것은?</div><div class="options"><button class="option " onclick="checkAnswer(this, false)">① $2a + 9$</button><button class="option " onclick="checkAnswer(this, false)">② $6a + 3$</button><button class="option correct" onclick="checkAnswer(this, true)">③ $2a + 3$</button><button class="option " onclick="checkAnswer(this, false)">④ $2a - 3$</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="13"><div class="question-text"><strong>Q14.</strong> $7x - 4 - 2x + 6$ 을 간단히 한 것은?</div><div class="options"><button class="option correct" onclick="checkAnswer(this, true)">① $5x + 2$</button><button class="option " onclick="checkAnswer(this, false)">② $9x + 2$</button><button class="option " onclick="checkAnswer(this, false)">③ $5x - 10$</button><button class="option " onclick="checkAnswer(this, false)">④ $9x - 10$</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card" data-qid="14"><div class="question-text"><strong>Q15.</strong> $-2(x - 3) + 3(x + 1)$ 을 간단히 한 것은?</div><div class="options"><button class="option " onclick="checkAnswer(this, false)">① $x - 3$</button><button class="option correct" onclick="checkAnswer(this, true)">② $x + 9$</button><button class="option " onclick="checkAnswer(this, false)">③ $-x + 9$</button><button class="option " onclick="checkAnswer(this, false)">④ $5x + 3$</button></div><div class="feedback"></div></div>
-
-          <button class="btn btn-primary" onclick="finishBasic()">제출 및 3단계 잠금 해제 (70점 이상 필요)</button>
-          <p id="basic-result" style="text-align:center; font-weight:bold; margin-top:10px; color:var(--danger);"></p>
+          <div class="feedback"></div>
         </div>
-
-        <!-- Stage 3 -->
-        <div id="stage-3" class="section">
-          <div class="card" style="background: var(--warning); color: white;">
-            <h2 style="color: white; margin: 0;">🔥 실전 문제 (15문제)</h2>
-            <p style="margin-bottom: 0;">이제 진짜 시험에 나오는 스타일로 가볼까?</p>
+        <div class="quiz-card" data-hint="곱셈 기호는 생략하고 숫자 먼저 씁니다." data-explanation="숫자 3을 문자 앞에 쓰고 곱셈 기호를 생략하여 $3a$가 됩니다.">
+          <div class="q-text">2. $a \times 3$을 간단히 나타내세요.</div>
+          <div class="options subjective">
+            <input type="text" class="subj-input" placeholder="정답 입력...">
+            <button class="btn-primary" onclick="checkSubjectiveWithHint(this, ['3a', '3 a'])">확인</button>
           </div>
-          
-          <div class="card quiz-card adv-card" data-qid="adv0"><div class="question-text"><strong>1.</strong> $2(3x - 1) - (x - 4)$ 를 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['5x+2'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['5x+2'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv1"><div class="question-text"><strong>2.</strong> $\dfrac{1}{2}(4x - 6) + 3(x + 1)$ 을 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['5x'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['5x'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv2"><div class="question-text"><strong>3.</strong> $(8x - 12) \div 4 - (3x - 6) \div 3$ 을 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['x-1'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['x-1'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv3"><div class="question-text"><strong>4.</strong> $A = 3x-2, B = -x+4$ 일 때, $A+2B$ 의 결과는?</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['x+6'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['x+6'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv4"><div class="question-text"><strong>5.</strong> 어떤 다항식에 $2x-1$을 더해야 할 것을 뺐더니 $-x+5$가 되었다. 바르게 계산한 결과는?</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['3x+3'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['3x+3'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv5"><div class="question-text"><strong>6.</strong> $0.5(2x - 4) + 0.2(10x + 5)$ 를 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['3x-1'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['3x-1'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv6"><div class="question-text"><strong>7.</strong> $\dfrac{x+1}{2} + \dfrac{x-1}{3}$ 을 간단히 한 결과에서 $x$의 계수와 상수항을 합한 값은? (기약분수 형태 분자/분모 로 입력, 예: 1/2)</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['1/6'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['1/6'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv7"><div class="question-text"><strong>8.</strong> $4x - [2x - (x - 3)]$ 을 간단히 하시오.</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['3x-3'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['3x-3'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv8"><div class="question-text"><strong>9.</strong> $-3(ax + 2) + 4x - b = 10x - 11$ 일 때, 상수 $a$의 값은?</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['-2'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['-2'])">확인</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv9"><div class="question-text"><strong>10.</strong> $-3(ax + 2) + 4x - b = 10x - 11$ 일 때, 상수 $b$의 값은?</div><div class="subjective-input"><input type="text" class="subj-input" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter') checkSubjective(this, ['5'])"><button class="btn btn-primary" style="padding: 10px; width: auto;" onclick="checkSubjective(this.previousElementSibling, ['5'])">확인</button></div><div class="feedback"></div></div>
-          
-          <div class="card quiz-card adv-card" data-qid="adv10"><div class="question-text"><strong>11.</strong> $\dfrac{2x-1}{3} - \dfrac{x+2}{2}$ 를 간단히 한 결과는?</div><div class="options"><button class="option correct" onclick="checkAnswer(this, true)">① $\dfrac{x-8}{6}$</button><button class="option " onclick="checkAnswer(this, false)">② $\dfrac{x-3}{6}$</button><button class="option " onclick="checkAnswer(this, false)">③ $\dfrac{x+4}{6}$</button><button class="option " onclick="checkAnswer(this, false)">④ $\dfrac{x-7}{6}$</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv11"><div class="question-text"><strong>12.</strong> 밑변이 $(3x+2)$, 높이가 $4$인 삼각형의 넓이는?</div><div class="options"><button class="option " onclick="checkAnswer(this, false)">① $12x+8$</button><button class="option correct" onclick="checkAnswer(this, true)">② $6x+4$</button><button class="option " onclick="checkAnswer(this, false)">③ $6x+2$</button><button class="option " onclick="checkAnswer(this, false)">④ $12x+4$</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv12"><div class="question-text"><strong>13.</strong> 어떤 식에서 $-2x+5$를 빼야 할 것을 더했더니 $3x-1$이 되었다. 바른 계산 결과는?</div><div class="options"><button class="option " onclick="checkAnswer(this, false)">① $5x-6$</button><button class="option correct" onclick="checkAnswer(this, true)">② $7x-11$</button><button class="option " onclick="checkAnswer(this, false)">③ $x+4$</button><button class="option " onclick="checkAnswer(this, false)">④ $7x-6$</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv13"><div class="question-text"><strong>14.</strong> $(4x^2 - 2x) - (x^2 + 5x)$ 를 간단히 한 결과는?</div><div class="options"><button class="option correct" onclick="checkAnswer(this, true)">① $3x^2 - 7x$</button><button class="option " onclick="checkAnswer(this, false)">② $3x^2 + 3x$</button><button class="option " onclick="checkAnswer(this, false)">③ $5x^2 - 7x$</button><button class="option " onclick="checkAnswer(this, false)">④ $3x^2 - 3x$</button></div><div class="feedback"></div></div>
-          <div class="card quiz-card adv-card" data-qid="adv14"><div class="question-text"><strong>15.</strong> $a(x-2) + 3(x+b) = 5x + 1$ 이 모든 $x$에 대해 성립할 때, $a+b$의 값은? (단, $a,b$는 상수)</div><div class="options"><button class="option " onclick="checkAnswer(this, false)">① $1$</button><button class="option " onclick="checkAnswer(this, false)">② $2$</button><button class="option " onclick="checkAnswer(this, false)">③ $3$</button><button class="option correct" onclick="checkAnswer(this, true)">④ $4$</button></div><div class="feedback"></div></div>
-
-          <button class="btn btn-primary" onclick="finishAdvanced()">시험 끝! 결과 확인하기 🎉</button>
+          <div class="feedback"></div>
         </div>
-
-        <!-- Stage Done -->
-        <div id="stage-done" class="section">
-          <div class="card" style="text-align: center; padding: 50px 20px;">
-            <h1 style="font-size: 4rem; margin: 0;">🎊</h1>
-            <h2 style="font-size: 2rem;">오늘 학습 완료!</h2>
-            <p style="font-size: 1.2rem;">정말 고생 많았어! 선생님이 박수 쳐줄게! 👏👏👏</p>
-            <p id="final-score-txt" style="font-size: 1.5rem; font-weight: bold; color: var(--primary);"></p>
-            <a href="../../index.html" class="btn btn-primary" style="margin-top: 30px;">메인 허브로 이동 🚀</a>
+        <div class="quiz-card" data-hint="같은 문자의 곱은 거듭제곱으로 나타냅니다." data-explanation="$a$가 두 번 곱해졌으므로 $a^2$이고, $b$는 한 번이므로 $a^2b$가 됩니다.">
+          <div class="q-text">3. $a \times a \times b$를 간단히 나타내세요.</div>
+          <div class="options subjective">
+            <input type="text" class="subj-input" placeholder="정답 입력...">
+            <button class="btn-primary" onclick="checkSubjectiveWithHint(this, ['a^2b', 'a^2 b'])">확인</button>
           </div>
+          <div class="feedback"></div>
         </div>
-
+        <div class="quiz-card" data-hint="나눗셈은 분수로 바꿀 수 있습니다. 나누는 수가 분모로 갑니다." data-explanation="$x$를 $y$로 나누었으므로 분모에 $y$, 분자에 $x$가 들어가 $\frac{x}{y}$가 됩니다. 답은 x/y 로 적어도 됩니다.">
+          <div class="q-text">4. $x \div y$를 기호를 생략하여 나타내세요.</div>
+          <div class="options subjective">
+            <input type="text" class="subj-input" placeholder="정답 입력...">
+            <button class="btn-primary" onclick="checkSubjectiveWithHint(this, ['x/y', 'x / y', '\\frac{x}{y}'])">확인</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz-card" data-hint="괄호가 있는 경우 괄호 전체를 하나의 문자로 취급합니다." data-explanation="숫자 -2를 맨 앞에 쓰고 곱셈 기호를 생략하여 $-2(x+y)$가 됩니다.">
+          <div class="q-text">5. $(x+y) \times (-2)$를 간단히 나타내세요.</div>
+          <div class="options subjective">
+            <input type="text" class="subj-input" placeholder="정답 입력...">
+            <button class="btn-primary" onclick="checkSubjectiveWithHint(this, ['-2(x+y)', '-2(x + y)'])">확인</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz-card" data-hint="속력은 거리 나누기 시간입니다." data-explanation="속력 = $\frac{거리}{시간}$ 이므로 $\frac{x}{3}$ 입니다.">
+          <div class="q-text">6. 거리가 $x$ km이고 걸린 시간이 3시간일 때, 속력을 구하세요. (단위 생략, 분수형태는 x/3 으로 입력)</div>
+          <div class="options subjective">
+            <input type="text" class="subj-input" placeholder="정답 입력...">
+            <button class="btn-primary" onclick="checkSubjectiveWithHint(this, ['x/3', 'x / 3'])">확인</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz-card" data-hint="1이나 -1과 문자의 곱에서는 1을 생략합니다." data-explanation="$(-1) \times a$에서 1을 생략하여 $-a$로 씁니다. $-1a$는 틀린 표현입니다.">
+          <div class="q-text">7. $(-1) \times a$를 간단히 나타내세요.</div>
+          <div class="options subjective">
+            <input type="text" class="subj-input" placeholder="정답 입력...">
+            <button class="btn-primary" onclick="checkSubjectiveWithHint(this, ['-a'])">확인</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <button class="btn-primary" style="width: 100%; margin-top: 20px; font-size: 1.1rem; border: none; background: var(--primary);" onclick="finishBasic()">다음 단계로 (실전 문제) 🚀</button>
+      </div>
+      <div id="stage-3" class="section">
+        <h2>🔥 3단계: 객관식 피드백 테스트 (총 3문제)</h2>
+        <p>정답을 맞추거나 틀리면, 모든 보기에 대한 <b>상세 해설</b>이 제공됩니다!</p>
+        <div class="quiz-card" data-explanation="[정답 해설]<br><b>3번</b>이 정답입니다. 숫자 0.1의 1은 생략할 수 없으므로 $0.1a$가 맞습니다.<br><br>[오답 분석]<br>1번: $a \times b \times a = a^2b$ 입니다.<br>2번: $x \div y \times z = \frac{x}{y} \times z = \frac{xz}{y}$ 입니다. (분모로 z가 가지 않음)<br>4번: $x+y \div 2 = x + \frac{y}{2}$ 입니다. 덧셈보다 나눗셈을 먼저 합니다.">
+          <div class="q-text">1. 다음 중 기호를 생략한 것으로 <b>옳은</b> 것은?</div>
+          <div class="options">
+            <div class="option" onclick="checkObjectiveWithExpl(this, false)">1) $a \times b \times a = ab^2$</div>
+            <div class="option" onclick="checkObjectiveWithExpl(this, false)">2) $x \div y \times z = \frac{x}{yz}$</div>
+            <div class="option" onclick="checkObjectiveWithExpl(this, true)">3) $0.1 \times a = 0.1a$</div>
+            <div class="option" onclick="checkObjectiveWithExpl(this, false)">4) $x + y \div 2 = \frac{x+y}{2}$</div>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz-card" data-explanation="[정답 해설]<br><b>2번</b>이 정답입니다. 십의 자리가 $x$, 일의 자리가 $y$인 두 자리 자연수는 $10 \times x + 1 \times y = 10x + y$로 나타냅니다.<br><br>[오답 분석]<br>1번, 3번, 4번은 자릿수를 곱하지 않고 단순히 더하거나 곱한 형태로, 숫자의 크기를 나타내지 못합니다.">
+          <div class="q-text">2. 십의 자리의 숫자가 $x$, 일의 자리의 숫자가 $y$인 두 자리 자연수를 식으로 바르게 나타낸 것은?</div>
+          <div class="options">
+            <div class="option" onclick="checkObjectiveWithExpl(this, false)">1) $xy$</div>
+            <div class="option" onclick="checkObjectiveWithExpl(this, true)">2) $10x + y$</div>
+            <div class="option" onclick="checkObjectiveWithExpl(this, false)">3) $x + y$</div>
+            <div class="option" onclick="checkObjectiveWithExpl(this, false)">4) $10y + x$</div>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz-card" data-explanation="[정답 해설]<br><b>4번</b>이 정답입니다. 한 변의 길이가 $a$인 정사각형의 둘레는 변이 4개이므로 $4a$ 입니다.<br><br>[오답 분석]<br>1번: 한 변이 $a$인 정사각형의 넓이는 $a \times a = a^2$ 입니다.<br>2번: 밑변 $a$, 높이 $h$인 삼각형의 넓이는 $\frac{1}{2}ah$ 입니다.<br>3번: 가로 $a$, 세로 $b$인 직사각형의 둘레는 $2(a+b)$ 입니다.">
+          <div class="q-text">3. 다음 도형의 넓이나 둘레를 나타낸 식으로 옳지 <b>않은</b> 것은?</div>
+          <div class="options">
+            <div class="option" onclick="checkObjectiveWithExpl(this, false)">1) 한 변의 길이가 $a$인 정사각형의 넓이: $a^2$</div>
+            <div class="option" onclick="checkObjectiveWithExpl(this, false)">2) 밑변이 $a$, 높이가 $h$인 삼각형의 넓이: $\frac{1}{2}ah$</div>
+            <div class="option" onclick="checkObjectiveWithExpl(this, false)">3) 가로가 $a$, 세로가 $b$인 직사각형의 둘레: $2(a+b)$</div>
+            <div class="option" onclick="checkObjectiveWithExpl(this, true)">4) 한 변의 길이가 $a$인 정사각형의 둘레: $4a$</div>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <button class="btn-primary" style="width: 100%; margin-top: 20px; font-size: 1.1rem; border: none; background: var(--warning);" onclick="finishAdvanced()">실전 테스트 채점하기 📝</button>
+      </div>
       </div>
     </main>
 
@@ -205,9 +236,9 @@
 
   <script>
     const API_KEY = atob("QVEuQWI4Uk42S19fVkhfUnhQb2hhV3RSb193dFl6eXRaS0x3ZnI3a2Q0NFJMWmVzTFNOdWc=");
-    const MAX_STEPS = 3;
-    const dateKey = "2026.06.14 (일)";
-    const unitKey = "math_3";
+    const MAX_STEPS = 2;
+    const dateKey = "2026-06-11 (목)";
+    const unitKey = "math_0";
     const storeKey = "progress_" + dateKey + "_" + unitKey;
     
     let state = { stage: 1, lectureRead: false, basicScore: 0, advScore: 0 };
@@ -332,6 +363,79 @@
       const stage = document.getElementById(stageId); const cards = stage.querySelectorAll('.quiz-card'); let c = 0;
       cards.forEach(card => { if(card.querySelector('.correct-selected') || (card.querySelector('.subj-input') && card.querySelector('.subj-input').style.borderColor.includes('34C759'))) { c++; } });
       return { total: cards.length, correct: c, answered: stage.querySelectorAll('.quiz-card[data-answered="true"]').length };
+    }
+
+    
+    function checkSubjectiveWithHint(btn, correctAnswers) {
+      const card = btn.closest('.quiz-card'); if(card.dataset.answered === "true") return;
+      const input = card.querySelector('.subj-input'); const val = normalizeString(input.value);
+      if(!val) return alert("정답을 입력하세요!");
+      
+      const isCorrect = correctAnswers.some(a => normalizeString(a) === val);
+      const fb = card.querySelector('.feedback');
+      
+      let failCount = parseInt(card.dataset.fails || "0");
+
+      if(isCorrect) {
+        playSound('correct'); fb.style.color = 'var(--text)'; 
+        fb.innerHTML = `<span style="color:var(--success); font-weight:bold;">✅ 정답입니다!</span><br><br><div style="background:#ecfdf5; padding:15px; border-radius:8px; border:1px solid #10B981; margin-top:10px;">[왜 정답일까요?]<br>${card.dataset.explanation}</div>`;
+        input.style.borderColor = 'var(--success)'; input.style.backgroundColor = '#ecfdf5'; 
+        card.dataset.correct = "true";
+        card.dataset.answered = "true";
+        input.disabled = true; btn.disabled = true;
+      } else {
+        failCount++;
+        card.dataset.fails = failCount;
+        playSound('wrong'); 
+        
+        state.wrongLogs = state.wrongLogs || [];
+        state.wrongLogs.push({q: card.querySelector('.q-text').innerText, user: val});
+
+        if (failCount === 1) {
+          fb.style.color = 'var(--text)'; 
+          fb.innerHTML = `<span style="color:var(--warning); font-weight:bold;">❌ 아쉽지만 틀렸어요. 힌트를 줄게요!</span><br><br><div style="background:#fffbeb; padding:15px; border-radius:8px; border:1px solid #F59E0B; margin-top:10px;">[💡 힌트]<br>${card.dataset.hint}</div><br>다시 한 번 생각해서 정답을 고쳐보세요!`;
+          input.style.borderColor = 'var(--warning)'; input.style.backgroundColor = '#fef2f2';
+          input.value = '';
+          input.focus();
+        } else {
+          fb.style.color = 'var(--text)'; 
+          fb.innerHTML = `<span style="color:var(--danger); font-weight:bold;">❌ 정답은 <b>${correctAnswers.join(' 또는 ')}</b> 입니다.</span><br><br><div style="background:#f3f4f6; padding:15px; border-radius:8px; border:1px solid #9ca3af; margin-top:10px;">[풀이 해설]<br>${card.dataset.explanation}</div>`;
+          input.style.borderColor = 'var(--danger)'; input.style.backgroundColor = '#fef2f2';
+          card.dataset.correct = "false";
+          card.dataset.answered = "true";
+          input.disabled = true; btn.disabled = true;
+        }
+      }
+      fb.style.display = 'block';
+      renderMathInElement(fb, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });
+    }
+
+    function checkObjectiveWithExpl(btn, isCorrect) {
+      const card = btn.closest('.quiz-card'); if(card.dataset.answered === "true") return;
+      const fb = card.querySelector('.feedback');
+      
+      card.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+      btn.classList.add('selected');
+
+      if(isCorrect) {
+        playSound('correct'); fb.style.color = 'var(--text)'; 
+        fb.innerHTML = `<span style="color:var(--success); font-weight:bold;">✅ 정답을 맞췄습니다!</span><br><br><div style="background:#f8f9ff; padding:15px; border-radius:8px; border:1px solid var(--primary); line-height:1.6; margin-top:10px;">${card.dataset.explanation}</div>`;
+        btn.style.backgroundColor = '#ecfdf5'; btn.style.borderColor = 'var(--success)'; 
+        card.dataset.correct = "true";
+      } else {
+        playSound('wrong'); fb.style.color = 'var(--text)'; 
+        fb.innerHTML = `<span style="color:var(--danger); font-weight:bold;">❌ 아쉽지만 틀렸습니다.</span><br><br><div style="background:#f8f9ff; padding:15px; border-radius:8px; border:1px solid var(--primary); line-height:1.6; margin-top:10px;">${card.dataset.explanation}</div>`;
+        btn.style.backgroundColor = '#fef2f2'; btn.style.borderColor = 'var(--danger)'; 
+        card.dataset.correct = "false";
+        
+        state.wrongLogs = state.wrongLogs || [];
+        state.wrongLogs.push({q: card.querySelector('.q-text').innerText, user: btn.innerText});
+      }
+      card.dataset.answered = "true";
+      fb.style.display = 'block';
+      
+      card.querySelectorAll('.option').forEach(opt => opt.style.pointerEvents = 'none');
+      renderMathInElement(fb, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });
     }
 
     function finishBasic() {
