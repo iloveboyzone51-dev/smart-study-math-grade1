@@ -118,13 +118,13 @@
             <div id="step-2" class="step-box">② 분자에 $b$를 곱해준다. <br><span class="highlight">$\dfrac{ab}{3}$</span></div>
             <button id="next-step-btn" class="btn btn-primary" onclick="showNextStep()" style="margin-top: 20px;">다음 단계 보기 👀</button>
           </div>
-          <button class="btn btn-primary" onclick="finishLecture()">✅ 강의 다 들었어요! (2단계로 이동)</button>
+          <button id="finish-lecture-btn" class="btn btn-primary" onclick="finishLecture()" style="display: none; margin-top: 20px;">✅ 강의 다 들었어요! (2단계로 이동)</button>
         </div>
 
         <!-- Stage 2 -->
               <div id="stage-2" class="section">
         <h2>✏️ 2단계: 주관식 피드백 테스트 (총 7문제)</h2>
-        <p>틀리면 바로 정답을 알려주지 않고 <b>힌트</b>가 나옵니다! 다시 풀어보세요.</p>
+        
         <div class="quiz-card" data-hint="거스름돈은 낸 돈에서 물건값을 빼면 됩니다." data-explanation="$1000$원에서 $x$원짜리 물건을 샀으므로, 남은 돈은 $(1000 - x)$원입니다.">
           <div class="q-text">1. 1000원을 내고 $x$원짜리 아이스크림을 샀을 때의 거스름돈을 식으로 나타내세요.</div>
           <div class="options subjective">
@@ -185,7 +185,7 @@
       </div>
       <div id="stage-3" class="section">
         <h2>🔥 3단계: 객관식 피드백 테스트 (총 3문제)</h2>
-        <p>정답을 맞추거나 틀리면, 모든 보기에 대한 <b>상세 해설</b>이 제공됩니다!</p>
+        
         <div class="quiz-card" data-explanation="[정답 해설]<br><b>3번</b>이 정답입니다. 숫자 0.1의 1은 생략할 수 없으므로 $0.1a$가 맞습니다.<br><br>[오답 분석]<br>1번: $a \times b \times a = a^2b$ 입니다.<br>2번: $x \div y \times z = \frac{x}{y} \times z = \frac{xz}{y}$ 입니다. (분모로 z가 가지 않음)<br>4번: $x+y \div 2 = x + \frac{y}{2}$ 입니다. 덧셈보다 나눗셈을 먼저 합니다.">
           <div class="q-text">1. 다음 중 기호를 생략한 것으로 <b>옳은</b> 것은?</div>
           <div class="options">
@@ -324,12 +324,12 @@
     function showNextStep() {
       currentStep++; const el = document.getElementById('step-' + currentStep);
       if (el) el.classList.add('visible');
-      if (currentStep >= MAX_STEPS) document.getElementById('next-step-btn').style.display = 'none';
+      if (currentStep >= MAX_STEPS) { document.getElementById('next-step-btn').style.display = 'none'; document.getElementById('finish-lecture-btn').style.display = 'block'; }
     }
 
     function finishLecture() { state.lectureRead = true; playSound('tada'); navTo(2); }
 
-    function normalizeString(str) { return str.replace(/\s+/g, '').toLowerCase(); }
+    function normalizeString(str) { let s = str.replace(/\s+/g, '').toLowerCase(); s = s.replace(/^\((.*)\)$/, '$1'); return s; }
 
     function checkSubjective(inputEl, correctAnswers) {
       const card = inputEl.closest('.quiz-card'); if(card.dataset.answered) return;

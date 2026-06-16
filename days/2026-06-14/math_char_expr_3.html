@@ -118,7 +118,7 @@
             <div id="step-3" class="step-box">③ 계수끼리 계산한다. <br><span class="highlight">$4x - 11$</span></div>
             <button id="next-step-btn" class="btn btn-primary" onclick="showNextStep()" style="margin-top: 20px;">다음 단계 보기 👀</button>
           </div>
-          <button class="btn btn-primary" onclick="finishLecture()">✅ 강의 다 들었어요! (2단계로 이동)</button>
+          <button id="finish-lecture-btn" class="btn btn-primary" onclick="finishLecture()" style="display: none; margin-top: 20px;">✅ 강의 다 들었어요! (2단계로 이동)</button>
         </div>
 
         <!-- Stage 2 -->
@@ -293,12 +293,12 @@
     function showNextStep() {
       currentStep++; const el = document.getElementById('step-' + currentStep);
       if (el) el.classList.add('visible');
-      if (currentStep >= MAX_STEPS) document.getElementById('next-step-btn').style.display = 'none';
+      if (currentStep >= MAX_STEPS) { document.getElementById('next-step-btn').style.display = 'none'; document.getElementById('finish-lecture-btn').style.display = 'block'; }
     }
 
     function finishLecture() { state.lectureRead = true; playSound('tada'); navTo(2); }
 
-    function normalizeString(str) { return str.replace(/\s+/g, '').toLowerCase(); }
+    function normalizeString(str) { let s = str.replace(/\s+/g, '').toLowerCase(); s = s.replace(/^\((.*)\)$/, '$1'); return s; }
 
     function checkSubjective(inputEl, correctAnswers) {
       const card = inputEl.closest('.quiz-card'); if(card.dataset.answered) return;
