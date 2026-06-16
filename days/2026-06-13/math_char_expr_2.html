@@ -205,8 +205,7 @@
   </div>
 
   <script>
-    const API_KEY = atob("QVEuQWI4Uk42S19fVkhfUnhQb2hhV3RSb193dFl6eXRaS0x3ZnI3a2Q0NFJMWmVzTFNOdWc=");
-    const MAX_STEPS = 3;
+        const MAX_STEPS = 3;
     const dateKey = "2026.06.13 (토)";
     const unitKey = "math_2";
     const storeKey = "progress_" + dateKey + "_" + unitKey;
@@ -354,7 +353,31 @@
 
     async function finishAdvanced() {
       const r = countCorrect('stage-3'); if(r.answered < r.total) return alert("아직 안 푼 문제가 있어요!");
-      let score = Math.round((r.correct / r.total) * 100); state.advScore = score; state.stage = 4; saveState();
+      let score = Math.round((r.correct / r.total) * 100); state.advScore = score; state.stage = 4; 
+        
+        // Time tracking
+        const endTime = Date.now();
+        const durationMins = Math.round((endTime - window.startTime) / 60000) || 1; // minimum 1 min
+        
+        saveState();
+
+        // Push progress to cloudDB
+        getCloudDB().then(() => {
+          if(!window.cloudDB.progress) window.cloudDB.progress = [];
+          
+          // Remove old record for same date if exists
+          window.cloudDB.progress = window.cloudDB.progress.filter(p => p.dateKey !== dateKey);
+          
+          window.cloudDB.progress.push({
+            dateKey: dateKey,
+            unitKey: unitKey,
+            score: score,
+            durationMins: durationMins,
+            timestamp: new Date().toISOString(),
+            wrongCount: (state.wrongLogs || []).length
+          });
+          setCloudDB();
+        });
       playSound('tada');
       document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
       document.getElementById('stage-4').classList.add('active');

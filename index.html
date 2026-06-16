@@ -80,6 +80,29 @@
 
         <!-- Dad Dashboard (Hidden for Son) -->
         <div id="dad-dashboard" style="display:none;">
+          
+          <div class="card" style="border-left: 5px solid var(--primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h2 style="color: var(--text); margin: 0;">📊 아들의 종합 학습 리포트 (빅데이터)</h2>
+            </div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%; border-collapse:collapse; font-size:1rem; text-align:center;">
+                <thead>
+                  <tr style="background:#F8F9FF; border-bottom:2px solid var(--border);">
+                    <th style="padding:12px;">날짜</th>
+                    <th style="padding:12px;">학습 단원</th>
+                    <th style="padding:12px;">소요 시간</th>
+                    <th style="padding:12px;">오답 횟수</th>
+                    <th style="padding:12px;">최종 점수</th>
+                  </tr>
+                </thead>
+                <tbody id="dad-progress-list">
+                  <tr><td colspan="5" style="padding:20px; color:var(--subtext);">학습 데이터가 없습니다.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <div class="card" style="border-left: 5px solid var(--warning);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
               <h2 style="color: var(--text); margin: 0;">📬 아들의 오류 제보함</h2>
@@ -391,6 +414,22 @@
     });
 
     function renderDadFeedbacks() {
+      // 1. Render Progress Data (Big Data)
+      const pList = document.getElementById('dad-progress-list');
+      if(window.cloudDB.progress && window.cloudDB.progress.length > 0) {
+        pList.innerHTML = window.cloudDB.progress.map(p => `
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px; font-weight:bold;">${p.dateKey || ''}</td>
+            <td style="padding:12px;">${p.unitKey || ''}</td>
+            <td style="padding:12px;">${p.durationMins || 0}분</td>
+            <td style="padding:12px; color:var(--danger);">${p.wrongCount || 0}회</td>
+            <td style="padding:12px; font-weight:bold; color:var(--success);">${p.score || 0}점</td>
+          </tr>
+        `).reverse().join('');
+      }
+
+      // 2. Render Feedbacks
+
       const fbList = document.getElementById('dad-feedback-list');
       if(!window.cloudDB.feedbacks || window.cloudDB.feedbacks.length === 0) {
         fbList.innerHTML = `<div style="color:var(--subtext); text-align:center; padding:20px;">새롭게 제보된 오류가 없습니다.</div>`;
@@ -447,7 +486,15 @@
       btn.innerText = "🤖 생각 중...";
       btn.disabled = true;
 
-      const prompt = "학부모(아빠)가 중1 아들에게 보내는 응원 메시지 초안을 3문장 정도로 짧게 작성해줘. 다정하고 격려하는 톤으로 작성하며, 최근 수학 공부를 열심히 하는 것에 대해 칭찬해주는 내용이어야 해. 이모지도 적당히 사용해.";
+      
+      let pData = "최근 학습 데이터가 없습니다.";
+      if(window.cloudDB.progress && window.cloudDB.progress.length > 0) {
+        const last = window.cloudDB.progress[window.cloudDB.progress.length - 1];
+        pData = `[최근 학습정보] 날짜:${last.dateKey}, 단원:${last.unitKey}, 소요시간:${last.durationMins}분, 오답수:${last.wrongCount}번, 점수:${last.score}점`;
+      }
+      
+      const prompt = `학부모(아빠)가 중1 아들에게 보내는 응원 메시지 초안을 3문장 정도로 짧게 작성해줘. 다정하고 격려하는 톤이어야 해.\n\n다음 아들의 최근 학습 빅데이터를 참고해줘:\n${pData}\n\n이 데이터를 바탕으로 아들을 칭찬하거나 격려하고, 칭찬 스티커를 몇 개(0~3개) 주는 것이 합당한지, 어떤 보상을 주면 좋을지 짧게 제언도 포함해서 아빠가 그대로 복사해서 보낼 수 있게 작성해줘.`;
+
       
       try {
         const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=" + API_KEY, {
