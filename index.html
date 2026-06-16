@@ -280,6 +280,13 @@
         reason = "결석 / 미완료";
       }
 
+      // 6월 1일 ~ 11일 비활성화
+      const cutoffDate = new Date('2026-06-12');
+      if (targetDate < cutoffDate) {
+        status = "Disabled";
+        reason = "시스템 개발 및 준비 기간";
+      }
+
       return { status, reason };
     }
 
@@ -331,6 +338,9 @@
 
         // 클릭 이벤트
         cell.onclick = () => {
+          if (data.status === 'Disabled') {
+            return alert("[시스템 정비 기간]\n6월 1일부터 11일까지는 시스템 개발 및 준비 기간입니다.\n우리의 진짜 시작일은 12일입니다!");
+          }
           if (data.status === 'Triangle') {
             alert(`[${day}일 학습 미완료 사유]\n\n${data.reason}`);
           }
@@ -346,7 +356,7 @@
         cal.appendChild(cell);
       }
 
-      document.getElementById('completed-count').innerText = `${completedCount}일 / 미완료 ${daysInMonth - completedCount}일`;
+      document.getElementById('completed-count').innerText = `${completedCount}일 / 미완료 ${19 - completedCount}일`;
 
       // 추천 학습일 찾기
       const recommendEl = document.getElementById('recommend-day');
@@ -357,7 +367,7 @@
         const targetDate = new Date(dateStr);
         if(targetDate < today) {
           const st = getStatus(dateStr).status;
-          if(st !== 'O') {
+          if(st !== 'O' && st !== 'Disabled') {
             recommendEl.innerHTML = `<span style="color:var(--primary); text-decoration:underline;">6월 ${d}일 (${['일','월','화','수','목','금','토'][(d+firstDayOffset-1)%7]}) 학습 이어서 하기 🚀</span>`;
             recommendEl.dataset.day = d;
             found = true;
