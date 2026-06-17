@@ -46,25 +46,33 @@ def call_gemini(prompt):
 def process_ebs_question(q, subj):
     q_html = q.get('question_html', '')
     opts = q.get('options', [])
+    answer_text = q.get('answer', '')
+    official_explan = q.get('explanation_html', '')
     
     prompt = f"""You are a friendly middle school tutor (과외 선생님).
-Here is a multiple choice question for '{subj}'.
-Question HTML: {q_html}
-Options: {opts}
+Here is an official explanation for a multiple choice question in '{subj}'.
+
+Official Answer: {answer_text}
+Official Explanation: {official_explan}
 
 Your task:
-1. Figure out the correct answer (index 0 to {len(opts)-1}).
-2. Write a highly detailed, student-friendly explanation (학생 친화적인 과외 선생님 말투, 존댓말, 이모지 사용).
-3. IF it's Math (수학), you MUST provide an extremely detailed step-by-step solution.
-4. Format your explanation in HTML snippet (e.g. <p>, <b>, <ul>) and wrap math formulas with $.
+1. Rewrite this official explanation to be highly detailed and student-friendly (학생 친화적인 과외 선생님 말투, 존댓말, 이모지 사용).
+2. DO NOT change the logic or the final answer. Just explain it better!
+3. Format your explanation in HTML snippet (e.g. <p>, <b>, <ul>) and wrap math formulas with $.
 Return JSON exactly:
 ```json
 {{
-  "correct_index": 2,
   "explanation_html": "<p>안녕! 이 문제는...</p>"
 }}
 ```"""
     
+    ans_map = {"①": 0, "②": 1, "③": 2, "④": 3, "⑤": 4, "1": 0, "2": 1, "3": 2, "4": 3, "5": 4}
+    correct_idx = 0
+    for k, v in ans_map.items():
+        if k in answer_text:
+            correct_idx = v
+            break
+            
     res = call_gemini(prompt)
     if res:
         try:
@@ -77,7 +85,7 @@ Return JSON exactly:
                 "subj": subj,
                 "q": q_html,
                 "options": opts,
-                "correct": res_json.get("correct_index", 0),
+                "correct": correct_idx,
                 "explanation_html": res_json.get("explanation_html", "<p>해설을 불러올 수 없습니다.</p>")
             }
         except Exception as e:
@@ -87,7 +95,7 @@ Return JSON exactly:
         "subj": subj,
         "q": q_html,
         "options": opts,
-        "correct": 0,
+        "correct": correct_idx,
         "explanation_html": "<p>해설 생성에 실패했습니다.</p>"
     }
 
@@ -133,7 +141,7 @@ def process_item(task):
         return generate_ai_question(args[0])
 
 def load_ebs_data():
-    ebs_data = {"수학": [], "국어": [], "영어": [], "과학": []}
+    ebs_data = {"수학": [], "국어": [], "영어": [], "과학": [], "사회": []}
     files = [f for f in os.listdir(EBS_DIR) if f.endswith('.json')]
     for f in files:
         subj = ""
@@ -142,6 +150,7 @@ def load_ebs_data():
         elif "국어" in f_decoded: subj = "국어"
         elif "영어" in f_decoded: subj = "영어"
         elif "과학" in f_decoded: subj = "과학"
+        elif "사회" in f_decoded: subj = "사회"
         
         if subj:
             try:
